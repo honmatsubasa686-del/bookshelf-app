@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +16,19 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::resource('books', BookController::class);
+
+
+//仮ルート
+Route::get('/ranking', function () {
+    return 'ranking index';
+})->name('ranking.index');
+
+Route::get('/favorites', function () {
+    return 'favorites index';
+})->name('favorites.index');
+
+Route::get('/genres', function () {
+    return 'genres index';
+})->name('genres.index');
