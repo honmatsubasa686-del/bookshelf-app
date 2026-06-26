@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ReviewController;
@@ -31,6 +32,9 @@ Route::get('/favorites', [FavoriteController::class, 'index'])
 Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])
     ->middleware('auth')
     ->name('favorites.toggle');
+Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('reviews.like');
 
 //　仮ルート
 Route::get('/ranking', function () {

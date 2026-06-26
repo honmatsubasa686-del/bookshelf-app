@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Review extends Model
+class ReviewLike extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'book_id',
-        'rating',
-        'comment',
+        'review_id',
     ];
 
     public function user()
@@ -21,13 +19,8 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function book()
+    public function review()
     {
-        return $this->belongsTo(Book::class);
-    }
-
-    public function likedByUsers()
-    {
-        return $this->belongsToMany(User::class, 'review_likes')->withTimestamps();
+        return $this->belongsTo(Review::class);
     }
 }
