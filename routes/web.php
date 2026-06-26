@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
@@ -22,6 +23,8 @@ Route::get('/', function () {
 
 Route::resource('books', BookController::class);
 
+Route::resource('genres', GenreController::class)
+    ->middleware('auth');
 Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
 Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
@@ -40,7 +43,3 @@ Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])
 Route::get('/ranking', function () {
     return 'ranking index';
 })->name('ranking.index');
-
-Route::get('/genres', function () {
-    return 'genres index';
-})->name('genres.index');
