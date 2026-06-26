@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookController;
@@ -38,8 +39,5 @@ Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])
 Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])
     ->middleware('auth')
     ->name('reviews.like');
-
-//　仮ルート
-Route::get('/ranking', function () {
-    return 'ranking index';
-})->name('ranking.index');
+Route::get('/ranking', [RankingController::class, 'index'])
+    ->name('ranking.index');
