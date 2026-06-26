@@ -159,9 +159,6 @@
 
                                         <div class="mt-3 flex items-center justify-between">
                                             <!-- いいねボタン -->
-                                            {{--
-いいね機能は #8 で実装予定
-いまはレビュー機能確認のため一時コメントアウト
                                             @auth
                                                 @if(Auth::user()->likedReviews->contains($review->id))
                                                     <form action="{{ route('reviews.like', $review) }}" method="POST" class="inline" novalidate>
@@ -192,7 +189,6 @@
                                                     いいね ({{ $review->likedByUsers->count() }})
                                                 </a>
                                             @endauth
---}}
 
                                             <!-- 編集・削除ボタン -->
                                             <div class="flex items-center gap-2">
