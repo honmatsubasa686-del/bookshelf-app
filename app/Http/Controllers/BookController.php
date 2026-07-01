@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -35,16 +35,13 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:120'],
-            'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
-            'published_date' => ['required', 'date'],
-            'description' => ['nullable', 'string'],
-            'image_url' => ['nullable', 'url', 'max:255'],
-            'genres' => ['required', 'array'],
-            'genres.*' => ['exists:genres,id'],
-        ]);
+        $validated = $request->validated();
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('books', 'public');
+        }
 
         $book = Book::create([
             'user_id' => auth()->id(),
@@ -53,12 +50,14 @@ class BookController extends Controller
             'isbn' => $validated['isbn'],
             'published_date' => $validated['published_date'],
             'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_path' => $imagePath,
         ]);
 
         $book->genres()->attach($validated['genres']);
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を登録しました。');
     }
 
     /**
@@ -76,6 +75,8 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
+        $this->authorize('update', $book);
+
         $genres = Genre::all();
 
         return view('books.edit', compact('book', 'genres'));
@@ -86,7 +87,19 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
+        $this->authorize('update', $book);
+
         $validated = $request->validated();
+
+        $imagePath = $book->image_path;
+
+        if ($request->hasFile('image')) {
+            if ($book->image_path) {
+                Storage::disk('public')->delete($book->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('books', 'public');
+        }
 
         $book->update([
             'title' => $validated['title'],
@@ -94,12 +107,14 @@ class BookController extends Controller
             'isbn' => $validated['isbn'],
             'published_date' => $validated['published_date'],
             'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_path' => $imagePath,
         ]);
 
         $book->genres()->sync($validated['genres']);
 
-        return redirect()->route('books.show', $book);
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', '書籍を更新しました。');
     }
 
     /**
@@ -107,8 +122,16 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
+        $this->authorize('delete', $book);
+
+        if ($book->image_path) {
+            Storage::disk('public')->delete($book->image_path);
+        }
+
         $book->delete();
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を削除しました。');
     }
 }

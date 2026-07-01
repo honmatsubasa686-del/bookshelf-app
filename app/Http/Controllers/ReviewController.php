@@ -20,30 +20,44 @@ class ReviewController extends Controller
             'comment' => $validated['comment'] ?? null,
         ]);
 
-        return redirect()->route('books.show', $book);
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', 'レビューを投稿しました。');
     }
 
     public function edit(Review $review)
     {
+        $this->authorize('update', $review);
+
         return view('reviews.edit', compact('review'));
     }
 
     public function update(UpdateReviewRequest $request, Review $review)
     {
+        $this->authorize('update', $review);
+
         $validated = $request->validated();
 
         $review->update([
             'rating' => $validated['rating'],
             'comment' => $validated['comment'] ?? null,
         ]);
+
+        return redirect()
+            ->route('books.show', $review->book)
+            ->with('success', 'レビューを更新しました。');
     }
 
     public function destroy(Review $review)
     {
+        $this->authorize('delete', $review);
+        
         $book = $review->book;
 
         $review->delete();
 
-        return redirect()->route('books', $book);
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', 'レビューを削除しました。');
     }
 }

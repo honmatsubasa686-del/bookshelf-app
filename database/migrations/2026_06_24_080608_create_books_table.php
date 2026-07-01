@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('isbn', 13)->nullable();
             $table->date('published_date');
             $table->text('description')->nullable();
-            $table->string('image_url')->nullable();
+            $table->string('image_path')->nullable();
             $table->timestamps();
         });
     }

@@ -69,16 +69,25 @@
         @enderror
     </div>
 
-    <!-- 画像URL -->
+    <!-- 画像 -->
     <div>
-        <label for="image_url" class="block font-medium text-sm text-gray-700 mb-1">
-            画像URL
+        <label for="image" class="block font-medium text-sm text-gray-700 mb-1">
+            画像
         </label>
-        <input type="text" name="image_url" id="image_url" value="{{ old('image_url', $book->image_url ?? '') }}"
+        <input type="file" name="image" id="image"
             class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full"
-            placeholder="https://example.com/image.jpg">
-        <p class="text-xs text-gray-500 mt-1">書籍の表紙画像のURLを入力してください（任意）</p>
-        @error('image_url')
+            accept="image/png,image/jpeg">
+        <p class="text-xs text-gray-500 mt-1">書籍の表紙画像を選択してください（任意 / jpg・jpeg・png / 2MB以内）</p>
+
+        @if(isset($book) && $book->image_path)
+            <div class="mt-3">
+                <p class="text-xs text-gray-500 mb-1">現在の画像</p>
+                <img src="{{ asset('storage/' . $book->image_path) }}" alt="{{ $book->title }}"
+                    class="w-32 h-40 object-cover rounded shadow">
+            </div>
+        @endif
+
+        @error('image')
             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @enderror
     </div>
