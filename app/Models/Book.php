@@ -17,7 +17,7 @@ class Book extends Model
         'isbn',
         'published_date',
         'description',
-        'image_url',
+        'image_path',
     ];
 
     public function genres()

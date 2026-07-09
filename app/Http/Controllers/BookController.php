@@ -41,7 +41,7 @@ class BookController extends Controller
             'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
             'published_date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
-            'image_url' => ['nullable', 'url', 'max:255'],
+            'image_path' => ['nullable', 'url', 'max:255'],
             'genres' => ['required', 'array'],
             'genres.*' => ['exists:genres,id'],
         ]);
@@ -53,7 +53,7 @@ class BookController extends Controller
             'isbn' => $validated['isbn'],
             'published_date' => $validated['published_date'],
             'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_path' => $validated['image_path'] ?? null,
         ]);
 
         $book->genres()->attach($validated['genres']);
@@ -94,7 +94,7 @@ class BookController extends Controller
             'isbn' => $validated['isbn'],
             'published_date' => $validated['published_date'],
             'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_path' => $validated['image_path'] ?? null,
         ]);
 
         $book->genres()->sync($validated['genres']);

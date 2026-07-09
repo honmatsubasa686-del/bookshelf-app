@@ -23,8 +23,8 @@
 
                                         <!-- 書籍画像 -->
                                         <div class="flex-shrink-0 w-16 h-20 mr-4">
-                                            @if($book->image_url)
-                                                <img src="{{ $book->image_url }}" alt="{{ $book->title }}" class="w-full h-full object-cover rounded shadow">
+                                            @if($book->image_path)
+                                                <img src="{{ $book->image_path }}" alt="{{ $book->title }}" class="w-full h-full object-cover rounded shadow">
                                             @else
                                                 <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded">
                                                     <span class="text-gray-400 text-xs">No Image</span>

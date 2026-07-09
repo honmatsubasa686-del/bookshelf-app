@@ -32,7 +32,7 @@ class UpdateBookRequest extends FormRequest
             ],
             'published_date' => 'required|date',
             'description' => 'nullable|max:255',
-            'image_url' => 'nullable|url|max:255',
+            'image_path' => 'nullable|url|max:255',
             'genres' => 'required|array',
             'genres.*' => 'exists:genres,id',
         ];
