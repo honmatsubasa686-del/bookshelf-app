@@ -16,8 +16,8 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex flex-col md:flex-row gap-6">
                         <div class="md:w-1/3">
-                            @if($book->image_url)
-                                <img src="{{ $book->image_url }}" alt="{{ $book->title }}" class="w-full rounded shadow">
+                            @if($book->image_path)
+                                <img src="{{ $book->image_path }}" alt="{{ $book->title }}" class="w-full rounded shadow">
                             @else
                                 <div class="w-full h-64 bg-gray-200 flex items-center justify-center rounded">
                                     <span class="text-gray-500">画像なし</span>
