@@ -22,22 +22,52 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('books', BookController::class);
+Route::get('/books', [BookController::class, 'index'])
+    ->name('books.index');
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/books/create', [BookController::class, 'create'])
+        ->name('books.create');
+
+    Route::post('/books', [BookController::class, 'store'])
+        ->name('books.store');
+
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])
+        ->name('books.edit');
+
+    Route::match(['put', 'patch'], '/books/{book}', [BookController::class, 'update'])
+        ->name('books.update');
+
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])
+        ->name('books.destroy');
+});
+
+Route::get('/books/{book}', [BookController::class, 'show'])
+    ->name('books.show');
 
 Route::resource('genres', GenreController::class)
     ->middleware('auth');
+
 Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
 Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+
 Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+
 Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
 Route::get('/favorites', [FavoriteController::class, 'index'])
     ->middleware('auth')
     ->name('favorites.index');
+
 Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])
     ->middleware('auth')
     ->name('favorites.toggle');
+
 Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])
     ->middleware('auth')
     ->name('reviews.like');
+    
 Route::get('/ranking', [RankingController::class, 'index'])
     ->name('ranking.index');

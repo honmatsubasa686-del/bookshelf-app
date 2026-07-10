@@ -76,6 +76,10 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $genres = Genre::all();
 
         return view('books.edit', compact('book', 'genres'));
@@ -86,6 +90,10 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $book->update([
@@ -107,6 +115,10 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $book->delete();
 
         return redirect()->route('books.index');
