@@ -390,7 +390,5 @@ class BookFeatureTest extends TestCase
             'title' => '他人の本',
         ]);
     }
-
-    
 }
 

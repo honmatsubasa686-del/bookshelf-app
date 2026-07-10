@@ -49,13 +49,15 @@ Route::get('/books/{book}', [BookController::class, 'show'])
 Route::resource('genres', GenreController::class)
     ->middleware('auth');
 
-Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+Route::middleware('auth')->group(function () {
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
 
-Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
 
-Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+});
 
 Route::get('/favorites', [FavoriteController::class, 'index'])
     ->middleware('auth')
@@ -68,6 +70,6 @@ Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])
 Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])
     ->middleware('auth')
     ->name('reviews.like');
-    
+
 Route::get('/ranking', [RankingController::class, 'index'])
     ->name('ranking.index');
