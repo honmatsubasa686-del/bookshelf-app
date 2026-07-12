@@ -15,7 +15,7 @@ class BookFeatureTest extends TestCase
 
     public function test_books_index_page_can_be_displayed(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/books');
 
         $response->assertStatus(200);
     }
