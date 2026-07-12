@@ -41,7 +41,7 @@ class AuthFeatureTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertRedirect(('/'));
+        $response->assertRedirect(('/books'));
 
         $this->assertAuthenticated();
 
@@ -101,7 +101,7 @@ class AuthFeatureTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/');
+        $response->assertRedirect('/books');
 
         $this->assertAuthenticatedAs($user);
     }
