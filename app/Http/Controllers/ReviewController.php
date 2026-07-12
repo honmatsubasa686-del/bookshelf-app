@@ -25,25 +25,39 @@ class ReviewController extends Controller
 
     public function edit(Review $review)
     {
+        if ($review->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         return view('reviews.edit', compact('review'));
     }
 
     public function update(UpdateReviewRequest $request, Review $review)
     {
+        if ($review->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $review->update([
             'rating' => $validated['rating'],
             'comment' => $validated['comment'] ?? null,
         ]);
+
+        return redirect()->route('books.show', $review->book);
     }
 
     public function destroy(Review $review)
     {
+        if ($review->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $book = $review->book;
 
         $review->delete();
 
-        return redirect()->route('books', $book);
+        return redirect()->route('books.show', $book);
     }
 }
