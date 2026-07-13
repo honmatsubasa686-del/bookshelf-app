@@ -83,9 +83,11 @@ DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
 DB_DATABASE=laravel
-DB_USERNAME=root
-DB_PASSWORD=
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
+
+MySQL の初回起動時にデータベースユーザーが作成されるため、Sail 環境では `DB_USERNAME=sail`、`DB_PASSWORD=password` を設定してください。
 
 ### 4. コンテナを起動
 
@@ -419,6 +421,32 @@ Feature テストを実行する場合は、以下のコマンドを使用しま
 ```
 
 ## 補足
+
+### MySQL コンテナが起動しない場合
+
+MySQL コンテナが起動しない場合は、`.env` のデータベース接続設定を確認してください。
+
+Sail 環境では、以下の設定になっている必要があります。
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+誤ったDB設定で一度コンテナを起動した場合は、以下のコマンドでコンテナとDB volumeを作り直してください。
+
+```bash
+./vendor/bin/sail down -v
+./vendor/bin/sail up -d
+```
+
+`down -v` は Docker volume に保存されたDBデータを削除します。clone直後や検証環境でのやり直しに使用してください。
+
+### PHP 8.5 の Deprecated 警告について
 
 PHP 8.5 環境では、以下の非推奨警告が表示される場合があります。
 
