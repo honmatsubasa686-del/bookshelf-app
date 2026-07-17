@@ -51,7 +51,18 @@ Route::resource('genres', GenreController::class)
 
 Route::middleware('auth')->group(function () {
     Route::get('/reports', function () {
-        return view('reports.index');
+        $stats = [
+            'summary' => [
+                'total_reviews' => 0,
+                'books_read' => 0,
+                'average_rating' => 0,
+            ],
+            'rating_distribution' => collect([0,0,0,0,0,]),
+            'top_rated_books' =>[],
+            'genre_ratings' => [],
+        ];
+
+        return view('reports.index', compact('stats'));
     })->name('reports.index');
 
     Route::get('/reading-plans', function () {
