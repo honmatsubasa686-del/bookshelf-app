@@ -20,6 +20,10 @@ class Book extends Model
         'image_path',
     ];
 
+    protected $casts = [
+        'published_date' => 'date',
+    ];
+
     public function genres()
     {
         return $this->belongsToMany(Genre::class);
