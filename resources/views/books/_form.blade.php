@@ -33,7 +33,7 @@
     <!-- ISBN -->
     <div>
         <label for="isbn" class="block font-medium text-sm text-gray-700 mb-1">
-            ISBN-13 <span class="text-red-500">*</span>
+            ISBN-13
         </label>
         <input type="text" name="isbn" id="isbn" value="{{ old('isbn', $book->isbn ?? '') }}"
             class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full"
@@ -47,9 +47,9 @@
     <!-- 出版日 -->
     <div>
         <label for="published_date" class="block font-medium text-sm text-gray-700 mb-1">
-            出版日 <span class="text-red-500">*</span>
+            出版日
         </label>
-        <input type="date" name="published_date" id="published_date" value="{{ old('published_date', $book->published_date ?? '') }}"
+        <input type="date" name="published_date" id="published_date" value="{{ old('published_date', isset($book->published_date) ? $book->published_date->format('Y-m-d') : '') }}"
             class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full">
         @error('published_date')
             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -71,14 +71,14 @@
 
     <!-- 画像URL -->
     <div>
-        <label for="image_path" class="block font-medium text-sm text-gray-700 mb-1">
+        <label for="image_url" class="block font-medium text-sm text-gray-700 mb-1">
             画像URL
         </label>
-        <input type="text" name="image_path" id="image_path" value="{{ old('image_path', $book->image_path ?? '') }}"
+        <input type="text" name="image_url" id="image_url" value="{{ old('image_url', $book->image_url ?? '') }}"
             class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full"
             placeholder="https://example.com/image.jpg">
         <p class="text-xs text-gray-500 mt-1">書籍の表紙画像のURLを入力してください（任意）</p>
-        @error('image_path')
+        @error('image_url')
             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @enderror
     </div>

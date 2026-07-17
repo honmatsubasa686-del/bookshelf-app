@@ -16,8 +16,8 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex flex-col md:flex-row gap-6">
                         <div class="md:w-1/3">
-                            @if($book->image_path)
-                                <img src="{{ $book->image_path }}" alt="{{ $book->title }}" class="w-full rounded shadow">
+                            @if($book->image_url)
+                                <img src="{{ $book->image_url }}" alt="{{ $book->title }}" class="w-full rounded shadow">
                             @else
                                 <div class="w-full h-64 bg-gray-200 flex items-center justify-center rounded">
                                     <span class="text-gray-500">画像なし</span>
@@ -30,25 +30,25 @@
 
                                 <!-- お気に入りボタン -->
                                 @auth
-                                        @if(Auth::user()->favoriteBooks->contains($book->id))
-                                            <form action="{{ route('favorites.toggle', $book) }}" method="POST" novalidate>
-                                                @csrf
-                                                <button type="submit" class="text-red-500 hover:text-red-700" title="お気に入りから削除">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        @else
-                                            <form action="{{ route('favorites.toggle', $book) }}" method="POST" novalidate>
-                                                @csrf
-                                                <button type="submit" class="text-gray-400 hover:text-red-500" title="お気に入りに追加">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        @endif
+                                    @if(Auth::user()->favoriteBooks->contains($book->id))
+                                        <form action="{{ route('favorites.toggle', $book) }}" method="POST" novalidate>
+                                            @csrf
+                                            <button type="submit" class="text-red-500 hover:text-red-700" title="お気に入りから削除">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('favorites.toggle', $book) }}" method="POST" novalidate>
+                                            @csrf
+                                            <button type="submit" class="text-gray-400 hover:text-red-500" title="お気に入りに追加">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
                                 @else
                                     <a href="{{ route('login') }}" class="text-gray-400 hover:text-red-500" title="お気に入りに追加するにはログインしてください">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -59,8 +59,8 @@
                             </div>
 
                             <p class="text-gray-600 mb-2"><strong>著者:</strong> {{ $book->author }}</p>
-                            <p class="text-gray-600 mb-2"><strong>ISBN:</strong> {{ $book->isbn }}</p>
-                            <p class="text-gray-600 mb-2"><strong>出版日:</strong> {{ $book->published_date }}</p>
+                            <p class="text-gray-600 mb-2"><strong>ISBN:</strong> {{ $book->isbn ?? '未登録' }}</p>
+                            <p class="text-gray-600 mb-2"><strong>出版日:</strong> {{ $book->published_date?->format('Y-m-d') ?? '未登録' }}</p>
                             <div class="mb-4">
                                 <strong>ジャンル:</strong>
                                 @foreach($book->genres as $genre)

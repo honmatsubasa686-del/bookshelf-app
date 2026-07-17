@@ -50,6 +50,59 @@ Route::resource('genres', GenreController::class)
     ->middleware('auth');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/reports', function () {
+        $stats = [
+            'summary' => [
+                'total_reviews' => 0,
+                'books_read' => 0,
+                'average_rating' => 0,
+            ],
+            'rating_distribution' => collect([0,0,0,0,0,]),
+            'top_rated_books' =>[],
+            'genre_ratings' => [],
+        ];
+
+        return view('reports.index', compact('stats'));
+    })->name('reports.index');
+
+    Route::get('/reading-plans', function () {
+        $readingPlans = collect();
+        $currentStatus = request('status');
+
+        return view('reading-plans.index', compact('readingPlans', 'currentStatus'));
+    })->name('reading-plans.index');
+
+    Route::get('/reading-plans/create', function () {
+        $books = \App\Models\Book::orderBy('title')->get();
+
+        return view('reading-plans.create', compact('books'));
+    })->name('reading-plans.create');
+
+    Route::post('/reading-plans', function () {
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を作成しました。');
+        })->name('reading-plans.store');
+
+    Route::get('/notifications', function () {
+        $notifications = auth()->user()->notifications()->latest()->get();
+
+        return view('notifications.index', compact('notifications'));
+    })->name('notifications.index');
+
+    Route::post('/notifications/{notification}/read', function ($notificationId) {
+        $notification = auth()->user()
+        ->notifications()
+        ->where('id', $notificationId)
+        ->firstOrFail();
+
+        $notification->markAsRead();
+
+        return redirect()
+            ->route('notifications.index')
+            ->with('success', '通知を既読にしました。');
+    })->name('notifications.read');
+
     Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
