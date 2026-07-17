@@ -73,12 +73,35 @@ Route::middleware('auth')->group(function () {
     })->name('reading-plans.index');
 
     Route::get('/reading-plans/create', function () {
-        return view('reading-plans.create');
+        $books = \App\Models\Book::orderBy('title')->get();
+
+        return view('reading-plans.create', compact('books'));
     })->name('reading-plans.create');
 
+    Route::post('/reading-plans', function () {
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を作成しました。');
+        })->name('reading-plans.store');
+
     Route::get('/notifications', function () {
-        return view('notifications.index');
+        $notifications = auth()->user()->notifications()->latest()->get();
+
+        return view('notifications.index', compact('notifications'));
     })->name('notifications.index');
+
+    Route::post('/notifications/{notification}/read', function ($notificationId) {
+        $notification = auth()->user()
+        ->notifications()
+        ->where('id', $notificationId)
+        ->firstOrFail();
+
+        $notification->markAsRead();
+
+        return redirect()
+            ->route('notifications.index')
+            ->with('success', '通知を既読にしました。');
+    })->name('notifications.read');
 
     Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
