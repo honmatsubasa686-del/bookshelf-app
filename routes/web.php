@@ -66,8 +66,15 @@ Route::middleware('auth')->group(function () {
     })->name('reports.index');
 
     Route::get('/reading-plans', function () {
-        return view('reading-plans.index');
+        $readingPlans = collect();
+        $currentStatus = request('status');
+
+        return view('reading-plans.index', compact('readingPlans', 'currentStatus'));
     })->name('reading-plans.index');
+
+    Route::get('/reading-plans/create', function () {
+        return view('reading-plans.create');
+    })->name('reading-plans.create');
 
     Route::get('/notifications', function () {
         return view('notifications.index');
