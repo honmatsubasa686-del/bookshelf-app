@@ -460,12 +460,6 @@ Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL
 
 この警告は PHP 8.5 由来の Deprecated 警告であり、テスト自体の失敗ではありません。
 
-## リポジトリ
-
-```text
-https://github.com/honmatsubasa686-del/bookshelf-app
-```
-
 ## 作成者
 
 本間翼
