@@ -50,6 +50,18 @@ Route::resource('genres', GenreController::class)
     ->middleware('auth');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/reports', function () {
+        return view('reports.index');
+    })->name('reports.index');
+
+    Route::get('/reading-plans', function () {
+        return view('reading-plans.index');
+    })->name('reading-plans.index');
+
+    Route::get('/notifications', function () {
+        return view('notifications.index');
+    })->name('notifications.index');
+
     Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
