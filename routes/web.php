@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewLikeController;
@@ -65,24 +66,26 @@ Route::middleware('auth')->group(function () {
         return view('reports.index', compact('stats'));
     })->name('reports.index');
 
-    Route::get('/reading-plans', function () {
-        $readingPlans = collect();
-        $currentStatus = request('status');
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])
+        ->name('reading-plans.index');
 
-        return view('reading-plans.index', compact('readingPlans', 'currentStatus'));
-    })->name('reading-plans.index');
+    Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])
+        ->name('reading-plans.create');
 
-    Route::get('/reading-plans/create', function () {
-        $books = \App\Models\Book::orderBy('title')->get();
+    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])
+        ->name('reading-plans.store');
 
-        return view('reading-plans.create', compact('books'));
-    })->name('reading-plans.create');
+    Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])
+        ->name('reading-plans.complete');
 
-    Route::post('/reading-plans', function () {
-        return redirect()
-            ->route('reading-plans.index')
-            ->with('success', '読書計画を作成しました。');
-        })->name('reading-plans.store');
+    Route::get('/reading-plans/{readingPlan}/edit', [ReadingPlanController::class, 'edit'])
+        ->name('reading-plans.edit');
+
+    Route::match(['put', 'patch'], '/reading-plans/{readingPlan}', [ReadingPlanController::class, 'update'])
+        ->name('reading-plans.update');
+
+    Route::delete('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'destroy'])
+        ->name('reading-plans.destroy');
 
     Route::get('/notifications', function () {
         $notifications = auth()->user()->notifications()->latest()->get();

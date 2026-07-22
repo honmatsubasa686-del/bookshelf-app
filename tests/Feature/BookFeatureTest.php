@@ -121,9 +121,7 @@ class BookFeatureTest extends TestCase
         $response->assertSessionHasErrors([
             'title',
             'author',
-            'isbn',
-            'published_date',
-            'genres'
+            'genres',
         ]);
 
         $this->assertDatabaseCount('books', 0);

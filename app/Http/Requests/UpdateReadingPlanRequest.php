@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBookRequest extends FormRequest
+class UpdateReadingPlanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,16 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:120',
-            'isbn' => 'nullable|digits:13|unique:books,isbn',
-            'published_date' => 'nullable|date',
-            'description' => 'nullable|string',
-            'image_path' => 'nullable|url|max:255',
-            'genres' => 'required|array|min:1',
-            'genres.*' => 'exists:genres,id',
+            'due_date' => 'required|date|after_or_equal:today',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'due_date.required' => '読書期限日を入力してください。',
+            'due_date.date' => '読書期限日は日付形式で入力してください。',
+            'due_date.after_or_equal' => '読書期限日は今日以降の日付を指定してください。',
         ];
     }
 }
