@@ -25,28 +25,22 @@
                     <ul class="divide-y divide-gray-100">
                         @foreach($notifications as $notification)
                             @php
-                                $timing = $notification->data['timing'] ?? null;
+                                $type = $notification->data['type'] ?? null;
                                 $isUnread = $notification->read_at === null;
 
                                 // タイミング別の色・アイコン定義（Tailwind 静的解析のため class 全体をリテラルで書く）
-                                $style = match ($timing) {
-                                    'three_days_before' => [
+                                $style = match ($type) {
+                                    'before_due' => [
                                         'border' => 'bg-blue-500',
                                         'iconBg' => $isUnread ? 'bg-blue-100' : 'bg-gray-100',
                                         'iconColor' => $isUnread ? 'text-blue-600' : 'text-gray-400',
                                         'icon' => 'calendar',
                                     ],
-                                    'on_due_date' => [
+                                    'due_today' => [
                                         'border' => 'bg-yellow-500',
                                         'iconBg' => $isUnread ? 'bg-yellow-100' : 'bg-gray-100',
                                         'iconColor' => $isUnread ? 'text-yellow-700' : 'text-gray-400',
                                         'icon' => 'clock',
-                                    ],
-                                    'three_days_after' => [
-                                        'border' => 'bg-red-500',
-                                        'iconBg' => $isUnread ? 'bg-red-100' : 'bg-gray-100',
-                                        'iconColor' => $isUnread ? 'text-red-600' : 'text-gray-400',
-                                        'icon' => 'warning',
                                     ],
                                     default => [
                                         'border' => 'bg-gray-300',
@@ -92,9 +86,12 @@
                                             @if($isUnread)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">未読</span>
                                             @endif
-                                            <p class="text-sm font-semibold text-gray-900 truncate">{{ $notification->data['title'] ?? '通知' }}</p>
+                                            <p class="text-sm font-semibold text-gray-900 truncate">{{ $notification->data['book_title'] ?? '通知' }}</p>
                                         </div>
-                                        <p class="mt-1 text-sm text-gray-600">{{ $notification->data['body'] ?? '' }}</p>
+                                        <p class="mt-1 text-sm text-gray-600">{{ $notification->data['message'] ?? '' }}</p>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            期限日：{{ $notification->data['due_date'] ?? '-' }}
+                                        </p>
                                         <p class="mt-2 text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</p>
                                     </div>
 

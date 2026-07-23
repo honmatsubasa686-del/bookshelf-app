@@ -1,5 +1,7 @@
 <?php
 
+
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\GenreController;
@@ -28,20 +30,20 @@ Route::get('/books', [BookController::class, 'index'])
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/books/create', [BookController::class, 'create'])
-        ->name('books.create');
+Route::get('/books/create', [BookController::class, 'create'])
+    ->name('books.create');
 
-    Route::post('/books', [BookController::class, 'store'])
-        ->name('books.store');
+Route::post('/books', [BookController::class, 'store'])
+    ->name('books.store');
 
-    Route::get('/books/{book}/edit', [BookController::class, 'edit'])
-        ->name('books.edit');
+Route::get('/books/{book}/edit', [BookController::class, 'edit'])
+    ->name('books.edit');
 
-    Route::match(['put', 'patch'], '/books/{book}', [BookController::class, 'update'])
-        ->name('books.update');
+Route::match(['put', 'patch'], '/books/{book}', [BookController::class, 'update'])
+    ->name('books.update');
 
-    Route::delete('/books/{book}', [BookController::class, 'destroy'])
-        ->name('books.destroy');
+Route::delete('/books/{book}', [BookController::class, 'destroy'])
+    ->name('books.destroy');
 });
 
 Route::get('/books/{book}', [BookController::class, 'show'])
@@ -87,32 +89,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'destroy'])
         ->name('reading-plans.destroy');
 
-    Route::get('/notifications', function () {
-        $notifications = auth()->user()->notifications()->latest()->get();
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
 
-        return view('notifications.index', compact('notifications'));
-    })->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])
+        ->name('notifications.read');
 
-    Route::post('/notifications/{notification}/read', function ($notificationId) {
-        $notification = auth()->user()
-        ->notifications()
-        ->where('id', $notificationId)
-        ->firstOrFail();
+Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-        $notification->markAsRead();
+Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
 
-        return redirect()
-            ->route('notifications.index')
-            ->with('success', '通知を既読にしました。');
-    })->name('notifications.read');
+Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
 
-    Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-
-    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
-
-    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
-
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 Route::get('/favorites', [FavoriteController::class, 'index'])
