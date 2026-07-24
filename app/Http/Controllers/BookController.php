@@ -13,11 +13,39 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::latest()->paginate(10);
+        $genres = Genre::orderBy('name')->get();
 
-        return view('books.index', compact('books'));
+        $books = Book::query()
+            ->with(['genres'])
+            ->withAvg('reviews', 'rating')
+            ->when($request->filled('keyword'), function ($query) use ($request) {
+                $keyword = $request->keyword;
+
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('title', 'like', "%{$keyword}%")
+                        ->orWhere('author', 'like', "%{$keyword}%");
+                });
+            })
+            ->when($request->filled('genre'), function ($query) use ($request) {
+                $query->whereHas('genres', function ($query) use ($request) {
+                    $query->where('genres.id', $request->genre);
+                });
+            });
+
+        match ($request->input('sort', 'latest')) {
+            'oldest' => $books->oldest(),
+            'title' => $books->orderBy('title'),
+            'rating' => $books
+                ->orderByRaw('reviews_avg_rating IS NULL ASC')
+                ->orderByDesc('reviews_avg_rating'),
+            default => $books->latest(),
+        };
+
+        $books = $books->paginate(10)->withQueryString();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     /**
