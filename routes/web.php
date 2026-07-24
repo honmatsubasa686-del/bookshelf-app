@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\RankingController;
@@ -30,20 +30,20 @@ Route::get('/books', [BookController::class, 'index'])
 
 Route::middleware('auth')->group(function () {
 
-Route::get('/books/create', [BookController::class, 'create'])
-    ->name('books.create');
+    Route::get('/books/create', [BookController::class, 'create'])
+        ->name('books.create');
 
-Route::post('/books', [BookController::class, 'store'])
-    ->name('books.store');
+    Route::post('/books', [BookController::class, 'store'])
+        ->name('books.store');
 
-Route::get('/books/{book}/edit', [BookController::class, 'edit'])
-    ->name('books.edit');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])
+        ->name('books.edit');
 
-Route::match(['put', 'patch'], '/books/{book}', [BookController::class, 'update'])
-    ->name('books.update');
+    Route::match(['put', 'patch'], '/books/{book}', [BookController::class, 'update'])
+        ->name('books.update');
 
-Route::delete('/books/{book}', [BookController::class, 'destroy'])
-    ->name('books.destroy');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])
+        ->name('books.destroy');
 });
 
 Route::get('/books/{book}', [BookController::class, 'show'])
@@ -53,20 +53,9 @@ Route::resource('genres', GenreController::class)
     ->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/reports', function () {
-        $stats = [
-            'summary' => [
-                'total_reviews' => 0,
-                'books_read' => 0,
-                'average_rating' => 0,
-            ],
-            'rating_distribution' => collect([0,0,0,0,0,]),
-            'top_rated_books' =>[],
-            'genre_ratings' => [],
-        ];
 
-        return view('reports.index', compact('stats'));
-    })->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index');
 
     Route::get('/reading-plans', [ReadingPlanController::class, 'index'])
         ->name('reading-plans.index');
