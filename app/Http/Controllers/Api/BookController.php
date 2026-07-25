@@ -41,7 +41,10 @@ class BookController extends Controller
         $genres = $validated['genres'];
         unset($validated['genres']);
 
-        $book = Book::create($validated);
+        $book = Book::create([
+            ...$validated,
+            'user_id' => $request->user()->id,
+            ]);
 
         $book->genres()->attach($genres);
 
@@ -68,6 +71,10 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
+        if ($book->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $genres = $validated['genres'];
@@ -85,8 +92,12 @@ class BookController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $book)
+    public function destroy(Request $request, Book $book)
     {
+        if ($book->user_id !== $request->user()->id) {
+            abort(403);
+        }
+        
         $book->delete();
 
         return response()->noContent();
