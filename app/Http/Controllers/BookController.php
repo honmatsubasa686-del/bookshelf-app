@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Genre;
@@ -58,28 +59,68 @@ class BookController extends Controller
         return view('books.create', compact('genres'));
     }
 
+    public function searchByIsbn(string $isbn)
+    {
+        if (! preg_match('/^\d{13}$/', $isbn)) {
+            return response()->json([
+                'error' => 'ISBNは13桁で指定してください。',
+            ], 422);
+        }
+
+        try {
+            $response = Http::timeout(5)->get('https://www.googleapis.com/books/v1/volumes', [
+                'q' => 'isbn:' . $isbn,
+            ]);
+
+            if (! $response->successful()) {
+                $message = match ($response->status()) {
+                    429 => '外部APIの利用制限に達しました。時間をおいて再度お試しください。',
+                    default => '書籍情報の取得に失敗しました。',
+                };
+                return response()->json([
+                    'error' => $message,
+                ], 502);
+            }
+
+            $items = $response->json('items', []);
+
+            if (empty($items)) {
+                return response()->json([
+                    'error' => '該当する書籍が見つかりませんでした。',
+                ], 404);
+            }
+
+            $volumeInfo = $items[0]['volumeInfo'] ?? [];
+
+            return response()->json([
+                'title' => $volumeInfo['title'] ?? '',
+                'author' => isset($volumeInfo['authors'])
+                    ? implode(', ', $volumeInfo['authors'])
+                    : '',
+                'published_date' => $volumeInfo['publishedDate'] ?? '',
+                'description' => $volumeInfo['description'] ?? '',
+                'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? '',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => '通信エラーが発生しました。',
+            ], 500);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreBookRequest $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:120'],
-            'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
-            'published_date' => ['required', 'date'],
-            'description' => ['nullable', 'string'],
-            'image_path' => ['nullable', 'url', 'max:255'],
-            'genres' => ['required', 'array'],
-            'genres.*' => ['exists:genres,id'],
-        ]);
+        $validated = $request->validated();
 
         $book = Book::create([
             'user_id' => auth()->id(),
             'title' => $validated['title'],
             'author' => $validated['author'],
-            'isbn' => $validated['isbn'],
-            'published_date' => $validated['published_date'],
+            'isbn' => $validated['isbn'] ?? null,
+            'published_date' => $validated['published_date'] ?? null,
             'description' => $validated['description'] ?? null,
             'image_path' => $validated['image_path'] ?? null,
         ]);
