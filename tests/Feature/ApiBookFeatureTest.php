@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Genre;
-use App\Models\review;
 use App\Models\Book;
-use App\Models\user;
+use App\Models\Genre;
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ApiBookFeatureTest extends TestCase
@@ -116,7 +117,7 @@ class ApiBookFeatureTest extends TestCase
 
         $book->genres()->attach($genre->id);
 
-        review::create([
+        Review::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
             'rating' => 5,
@@ -145,17 +146,16 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_store_creates_book(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $genre = Genre::create([
             'name' => '技術書'
         ]);
 
         $response = $this->postJson('/api/v1/books', [
-            'user_id' => $user->id,
             'title' => 'API登録の本',
             'author' => 'テスト著者',
             'isbn' => '9784101010014',
-            'published_date' => '2024-01-01',
             'description' => 'API登録テスト用の本です。',
             'genres' => [
                 $genre->id,
@@ -185,21 +185,20 @@ class ApiBookFeatureTest extends TestCase
 
     public function test_api_books_store_required_fields(): void
     {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
         $response = $this->postJson('/api/v1/books', [
-            'user_id' => '',
             'title' => '',
             'author' => '',
-            'published_date' => '',
             'genres' => [],
         ]);
 
         $response->assertStatus(422);
 
         $response->assertJsonValidationErrors([
-            'user_id',
             'title',
             'author',
-            'published_date',
             'genres',
         ]);
 
@@ -209,17 +208,16 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_store_requires_isbn_to_be_13_digits_when_provided(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $genre = Genre::create([
             'name' => '技術者',
         ]);
 
         $response = $this->postJson('/api/v1/books', [
-            'user_id' => $user->id,
             'title' => 'ISBN不正の本',
             'author' => 'テスト著者',
             'isbn' => '123456789012',
-            'published_date' => '2024-01-01',
             'description' => 'ISBN不正テストです。',
             'genres' => [
                 $genre->id,
@@ -240,6 +238,7 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_store_requires_unique_isbn(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $genre = Genre::create([
             'name' => '技術者',
@@ -281,13 +280,12 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_store_requires_existing_genres(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/v1/books', [
-            'user_id' => $user->id,
             'title' => '存在しないジャンルの本',
             'author' => 'テスト著者',
             'isbn' => '9784101010014',
-            'published_date' => '2024-01-01',
             'description' => '存在しないジャンルテストです。',
             'genres' => [
                 999999,
@@ -308,6 +306,7 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_update_updates_book(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $oldGenre = Genre::create([
             'name' => '小説',
@@ -362,6 +361,7 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_update_requires_required_fields(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $book = Book::create([
             'user_id' => $user->id,
@@ -374,20 +374,16 @@ class ApiBookFeatureTest extends TestCase
         ]);
 
         $response = $this->putJson("/api/v1/books/{$book->id}", [
-            'user_id' => '',
             'title' => '',
             'author' => '',
-            'published_date' => '',
             'genres' => [],
         ]);
 
         $response->assertStatus(422);
 
         $response->assertJsonValidationErrors([
-            'user_id',
             'title',
             'author',
-            'published_date',
             'genres',
         ]);
 
@@ -402,6 +398,7 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_update_requires_unique_isbn_except_itself(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $genre = Genre::create([
             'name' => '技術書',
@@ -455,17 +452,16 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_update_returns_404_when_book_does_not_exist(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $genre = Genre::create([
             'name' => '技術書',
         ]);
 
         $response = $this->putJson('/api/v1/books/999999', [
-            'user_id' => $user->id,
             'title' => '存在しない本の更新',
             'author' => 'テスト著者',
             'isbn' => '9784101010014',
-            'published_date' => '2024-01-01',
             'description' => '存在しない本の更新テストです。',
             'genres' => [
                 $genre->id,
@@ -482,6 +478,7 @@ class ApiBookFeatureTest extends TestCase
     public function test_api_books_destroy_deletes_book(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $book = Book::create([
             'user_id' => $user->id,
@@ -505,8 +502,18 @@ class ApiBookFeatureTest extends TestCase
 
     public function test_api_books_destroy_returns_404_when_book_does_not_exist(): void
     {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
         $response = $this->deleteJson('/api/v1/books/999999');
 
         $response->assertStatus(404);
+    }
+
+    public function test_api_books_store_requires_authentication(): void
+    {
+        $response = $this->postJson('/api/v1/books', []);
+
+        $response->assertStatus(401);
     }
 }
