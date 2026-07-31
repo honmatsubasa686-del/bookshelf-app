@@ -2,9 +2,9 @@
 
 ## 概要
 
-bookshelf-app は、書籍情報を管理するための Laravel 製 Web アプリケーションです。
+bookshelf-app は、書籍情報を管理し、レビューやお気に入り、ランキング、読書計画を通して読書体験を記録できる Laravel 製 Web アプリケーションです。
 
-書籍の登録・編集・削除に加えて、ジャンル管理、レビュー投稿、お気に入り登録、レビューへのいいね、評価ランキング表示、公開 API による書籍情報の取得・登録・更新・削除に対応しています。
+書籍の登録・編集・削除に加えて、ジャンル管理、レビュー投稿、お気に入り登録、レビューへのいいね、評価ランキング表示、検索・フィルタ・ソート、ISBN検索、読書計画、通知・リマインダー、マイ読書レポート、Sanctum を用いた認証付き API に対応しています。
 
 ## 開発環境URL
 
@@ -38,7 +38,18 @@ MVC 構成、認証、CRUD 処理、バリデーション、リレーション�
 * お気に入り一覧表示
 * レビューへのいいね / 解除
 * 評価ランキング表示
-* 書籍公開 API
+* 書籍API（公開取得・認証付き登録/更新/削除）
+* 書籍検索・フィルタ・ソート
+* ISBN検索による書籍情報取得
+* 読書計画の作成・編集・削除
+* 読書計画の読了管理
+* 期限前日・期限当日のリマインダー通知
+* 期限切れ読書計画の自動更新
+* 通知一覧表示
+* 通知の既読化
+* マイ読書レポート表示
+* APIトークン発行
+* Sanctum 認証による API 書籍登録・更新・削除
 
 ## 使用技術
 
@@ -162,7 +173,7 @@ http://localhost:8080
 | title          | string      | not null                       |
 | author         | string(120) | not null                       |
 | isbn           | string(13)  | nullable                       |
-| published_date | date        | not null                       |
+| published_date | date        | nullable                       |
 | description    | text        | nullable                       |
 | image_path     | string      | nullable                       |
 | created_at     | timestamp   | nullable                       |
@@ -225,6 +236,49 @@ http://localhost:8080
 
 `user_id` と `review_id` の組み合わせは unique です。
 
+### reading_plans テーブル
+
+| カラム名                 | 型         | 制約                             |
+| ------------------------ | ---------- | -------------------------------- |
+| id                       | bigint     | primary key                      |
+| user_id                  | foreignId  | foreign key, cascade on delete   |
+| book_id                  | foreignId  | foreign key, cascade on delete   |
+| due_date                 | date       | not null                         |
+| status                   | string(20) | not null, default: planned       |
+| reminder_before_sent_at  | timestamp  | nullable                         |
+| reminder_due_sent_at     | timestamp  | nullable                         |
+| expired_at               | timestamp  | nullable                         |
+| created_at               | timestamp  | nullable                         |
+| updated_at               | timestamp  | nullable                         |
+
+### notifications テーブル
+
+| カラム名         | 型        | 制約        |
+| ---------------- | --------- | ----------- |
+| id               | uuid      | primary key |
+| type             | string    | not null    |
+| notifiable_type  | string    | not null    |
+| notifiable_id    | bigint    | not null    |
+| data             | text      | not null    |
+| read_at          | timestamp | nullable    |
+| created_at       | timestamp | nullable    |
+| updated_at       | timestamp | nullable    |
+
+### personal_access_tokens テーブル
+
+| カラム名        | 型         | 制約        |
+| --------------- | ---------- | ----------- |
+| id              | bigint     | primary key |
+| tokenable_type  | string     | not null    |
+| tokenable_id    | bigint     | not null    |
+| name            | string     | not null    |
+| token           | string(64) | unique      |
+| abilities       | text       | nullable    |
+| last_used_at    | timestamp  | nullable    |
+| expires_at      | timestamp  | nullable    |
+| created_at      | timestamp  | nullable    |
+| updated_at      | timestamp  | nullable    |
+
 ## ER図
 
 ```mermaid
@@ -241,6 +295,12 @@ erDiagram
 
     users ||--o{ review_likes : "has many"
     reviews ||--o{ review_likes : "has many"
+
+    users ||--o{ reading_plans : "has many"
+    books ||--o{ reading_plans : "has many"
+
+    users ||--o{ notifications : "notifiable"
+    users ||--o{ personal_access_tokens : "tokenable"
 
     users {
         bigint id PK
@@ -305,6 +365,43 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+
+    reading_plans {
+        bigint id PK
+        bigint user_id FK
+        bigint book_id FK
+        date due_date
+        string status
+        timestamp reminder_before_sent_at
+        timestamp reminder_due_sent_at
+        timestamp expired_at
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    notifications {
+        uuid id PK
+        string type
+        string notifiable_type
+        bigint notifiable_id
+        text data
+        timestamp read_at
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    personal_access_tokens {
+        bigint id PK
+        string tokenable_type
+        bigint tokenable_id
+        string name
+        string token
+        text abilities
+        timestamp last_used_at
+        timestamp expires_at
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 ## API仕様
@@ -313,12 +410,54 @@ erDiagram
 
 | メソッド | エンドポイント | 内容 |
 | --- | --- | --- |
+| POST | /api/v1/tokens | APIトークンを発行 |
 | GET | /api/v1/books | 書籍一覧を取得 |
 | GET | /api/v1/books?title=Laravel | 書籍をタイトルで検索 |
 | GET | /api/v1/books/{book} | 書籍詳細を取得 |
 | POST | /api/v1/books | 書籍を登録 |
 | PUT | /api/v1/books/{book} | 書籍を更新 |
 | DELETE | /api/v1/books/{book} | 書籍を削除 |
+
+### API認証について
+
+`POST /api/v1/tokens` で発行したトークンを使用して、認証が必要なAPIを実行します。
+
+以下のエンドポイントは Sanctum 認証が必要です。
+
+- `POST /api/v1/books`
+- `PUT /api/v1/books/{book}`
+- `DELETE /api/v1/books/{book}`
+
+リクエスト時は、Authorization ヘッダーに Bearer トークンを指定します。
+
+```http
+Authorization: Bearer {発行されたトークン}
+```
+
+### APIトークン発行
+
+```http
+POST /api/v1/tokens
+```
+
+リクエスト例：
+
+```json
+{
+  "email": "test@example.com",
+  "password": "password",
+  "device_name": "test-device"
+}
+```
+
+レスポンス例：
+
+```json
+{
+  "token": "発行されたAPIトークン",
+  "token_type": "Bearer"
+}
+```
 
 ### 書籍一覧取得
 
@@ -370,11 +509,12 @@ GET /api/v1/books/{book}
 POST /api/v1/books
 ```
 
+※ Sanctum 認証が必要です。
+
 リクエスト例：
 
 ```json
 {
-  "user_id": 1,
   "title": "API登録の本",
   "author": "テスト著者",
   "isbn": "9784101010014",
@@ -390,11 +530,12 @@ POST /api/v1/books
 PUT /api/v1/books/{book}
 ```
 
+※ Sanctum 認証が必要です。
+
 リクエスト例：
 
 ```json
 {
-  "user_id": 1,
   "title": "更新後の本",
   "author": "更新後の著者",
   "isbn": "9784101010021",
@@ -409,6 +550,8 @@ PUT /api/v1/books/{book}
 ```http
 DELETE /api/v1/books/{book}
 ```
+
+※ Sanctum 認証が必要です。
 
 正常に削除された場合は、`204 No Content` を返します。
 
@@ -431,6 +574,19 @@ Feature テストを実行する場合は、以下のコマンドを使用しま
 ./vendor/bin/sail artisan test --filter=RankingFeatureTest
 ./vendor/bin/sail artisan test --filter=AuthFeatureTest
 ./vendor/bin/sail artisan test --filter=ApiBookFeatureTest
+```
+
+### カバレッジ付きテスト
+
+```bash
+./vendor/bin/sail artisan test --coverage
+```
+
+最終確認時の実行結果：
+
+```text
+Tests: 2 deprecated, 113 passed (390 assertions)
+Coverage: 85.8%
 ```
 
 ## 補足
