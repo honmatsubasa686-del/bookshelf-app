@@ -24,7 +24,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の観点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($reviewer)->post(route('reviews.store', $book), [
@@ -53,7 +53,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->post(route('reviews.store', $book), [
@@ -78,7 +78,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($reviewer)->post(route('reviews.store', $book), [
@@ -105,7 +105,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($reviewer)->post(route('reviews.store', $book), [
@@ -134,7 +134,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Review::create([
@@ -163,7 +163,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -192,7 +192,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -219,7 +219,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -256,7 +256,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -292,7 +292,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -324,7 +324,7 @@ class ReviewFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([

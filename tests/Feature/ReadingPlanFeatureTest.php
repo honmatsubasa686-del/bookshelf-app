@@ -29,7 +29,7 @@ class ReadingPlanFeatureTest extends TestCase
 
         $response = $this->post('/reading-plans', [
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
+            'target_date' => now()->addWeek()->toDateString(),
         ]);
 
         $response->assertRedirect(route('reading-plans.index'));
@@ -37,15 +37,15 @@ class ReadingPlanFeatureTest extends TestCase
         $this->assertDatabaseHas('reading_plans', [
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned->value,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress->value,
         ]);
 
         $readingPlan = ReadingPlan::first();
 
         $this->assertSame($user->id, $readingPlan->user_id);
         $this->assertSame($book->id, $readingPlan->book_id);
-        $this->assertSame(ReadingPlanStatus::Planned, $readingPlan->status);
+        $this->assertSame(ReadingPlanStatus::InProgress, $readingPlan->status);
     }
 
     public function test_user_can_complete_own_reading_plan(): void
@@ -65,8 +65,8 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $response = $this->post("/reading-plans/{$readingPlan->id}/complete");
@@ -104,8 +104,8 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $owner->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $response = $this->post("/reading-plans/{$readingPlan->id}/complete");
@@ -115,7 +115,7 @@ class ReadingPlanFeatureTest extends TestCase
         $this->assertDatabaseHas('reading_plans', [
             'id' => $readingPlan->id,
             'user_id' => $owner->id,
-            'status' => ReadingPlanStatus::Planned->value,
+            'status' => ReadingPlanStatus::InProgress->value,
         ]);
     }
 
@@ -136,8 +136,8 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $response = $this->get("/reading-plans/{$readingPlan->id}/edit");
@@ -148,7 +148,7 @@ class ReadingPlanFeatureTest extends TestCase
         $response->assertSee('更新');
     }
 
-    public function test_user_can_update_own_reading_plan_due_date(): void
+    public function test_user_can_update_own_reading_plan_target_date(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -165,14 +165,14 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
-        $newDueDate = now()->addWeeks(2)->toDateString();
+        $newTargetDate = now()->addWeeks(2)->toDateString();
 
         $response = $this->put("/reading-plans/{$readingPlan->id}", [
-            'due_date' => $newDueDate,
+            'target_date' => $newTargetDate,
         ]);
 
         $response->assertRedirect(route('reading-plans.index'));
@@ -181,16 +181,16 @@ class ReadingPlanFeatureTest extends TestCase
             'id' => $readingPlan->id,
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => $newDueDate,
-            'status' => ReadingPlanStatus::Planned->value,
+            'target_date' => $newTargetDate,
+            'status' => ReadingPlanStatus::InProgress->value,
         ]);
 
         $readingPlan->refresh();
 
-        $this->assertSame($newDueDate, $readingPlan->due_date->toDateString());
+        $this->assertSame($newTargetDate, $readingPlan->target_date->toDateString());
     }
 
-    public function test_user_cannot_update_reading_plan_due_date_to_past_date(): void
+    public function test_user_cannot_update_reading_plan_target_date_to_past_date(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -209,21 +209,21 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => $originalDueDate,
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => $originalDueDate,
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $response = $this->from("/reading-plans/{$readingPlan->id}/edit")
             ->put("/reading-plans/{$readingPlan->id}", [
-                'due_date' => now()->subDay()->toDateString(),
+                'target_date' => now()->subDay()->toDateString(),
             ]);
 
         $response->assertRedirect("/reading-plans/{$readingPlan->id}/edit");
-        $response->assertSessionHasErrors('due_date');
+        $response->assertSessionHasErrors('target_date');
 
         $readingPlan->refresh();
 
-        $this->assertSame($originalDueDate, $readingPlan->due_date->toDateString());
+        $this->assertSame($originalDueDate, $readingPlan->target_date->toDateString());
     }
 
     public function test_user_cannot_edit_completed_reading_plan(): void
@@ -243,7 +243,7 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
+            'target_date' => now()->addWeek()->toDateString(),
             'status' => ReadingPlanStatus::Completed,
         ]);
 
@@ -266,24 +266,24 @@ class ReadingPlanFeatureTest extends TestCase
             'description' => '期限切れ更新不可テスト用の本です。',
         ]);
 
-        $originalDueDate = now()->addWeek()->toDateString();
+        $originalTargetDate = now()->addWeek()->toDateString();
 
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => $originalDueDate,
+            'target_date' => $originalTargetDate,
             'status' => ReadingPlanStatus::Expired,
         ]);
 
         $response = $this->put("/reading-plans/{$readingPlan->id}", [
-            'due_date' => now()->addWeeks(2)->toDateString(),
+            'target_date' => now()->addWeeks(2)->toDateString(),
         ]);
 
         $response->assertStatus(403);
 
         $readingPlan->refresh();
 
-        $this->assertSame($originalDueDate, $readingPlan->due_date->toDateString());
+        $this->assertSame($originalTargetDate, $readingPlan->target_date->toDateString());
         $this->assertSame(ReadingPlanStatus::Expired, $readingPlan->status);
     }
 
@@ -304,8 +304,8 @@ class ReadingPlanFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => now()->addWeek()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => now()->addWeek()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $response = $this->delete("/reading-plans/{$readingPlan->id}");

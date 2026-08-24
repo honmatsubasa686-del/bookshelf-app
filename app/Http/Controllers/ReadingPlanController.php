@@ -40,8 +40,8 @@ class ReadingPlanController extends Controller
         ReadingPlan::create([
             'user_id' => auth()->id(),
             'book_id' => $request->validated('book_id'),
-            'due_date' => $request->validated('due_date'),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => $request->validated('target_date'),
+            'status' => ReadingPlanStatus::InProgress
         ]);
 
         return redirect()
@@ -52,7 +52,7 @@ class ReadingPlanController extends Controller
     public function edit(ReadingPlan $readingPlan): View
     {
         abort_unless($readingPlan->user_id === auth()->id(), 403);
-        abort_if($readingPlan->status !== ReadingPlanStatus::Planned, 403);
+        abort_if($readingPlan->status !== ReadingPlanStatus::InProgress, 403);
 
         return view('reading-plans.edit', compact('readingPlan'));
     }
@@ -60,10 +60,10 @@ class ReadingPlanController extends Controller
     public function update(UpdateReadingPlanRequest $request, ReadingPlan $readingPlan): RedirectResponse
     {
         abort_unless($readingPlan->user_id === auth()->id(), 403);
-        abort_if($readingPlan->status !== ReadingPlanStatus::Planned, 403);
+        abort_if($readingPlan->status !== ReadingPlanStatus::InProgress, 403);
 
         $readingPlan->update([
-            'due_date' => $request->validated('due_date'),
+            'target_date' => $request->validated('target_date'),
         ]);
 
         return redirect()
@@ -85,6 +85,7 @@ class ReadingPlanController extends Controller
 
         $readingPlan->update([
             'status' => ReadingPlanStatus::Completed,
+            'completed_at' => now(),
         ]);
 
         return redirect()

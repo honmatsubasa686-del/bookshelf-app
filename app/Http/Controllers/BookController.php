@@ -122,12 +122,14 @@ class BookController extends Controller
             'isbn' => $validated['isbn'] ?? null,
             'published_date' => $validated['published_date'] ?? null,
             'description' => $validated['description'] ?? null,
-            'image_path' => $validated['image_path'] ?? null,
+            'image_url' => $validated['image_url'] ?? null,
         ]);
 
         $book->genres()->attach($validated['genres']);
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', '書籍を登録しました。');
     }
 
     /**
@@ -171,12 +173,14 @@ class BookController extends Controller
             'isbn' => $validated['isbn'],
             'published_date' => $validated['published_date'],
             'description' => $validated['description'] ?? null,
-            'image_path' => $validated['image_path'] ?? null,
+            'image_url' => $validated['image_url'] ?? null,
         ]);
 
         $book->genres()->sync($validated['genres']);
 
-        return redirect()->route('books.show', $book);
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', '書籍情報を更新しました。');
     }
 
     /**
@@ -190,6 +194,8 @@ class BookController extends Controller
 
         $book->delete();
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を削除しました。');
     }
 }

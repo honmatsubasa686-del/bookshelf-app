@@ -19,6 +19,7 @@ class ProcessReadingPlansCommand extends Command
         $this->expireOverduePlans();
         $this->sendBeforeDueReminders();
         $this->sendDueTodayReminders();
+        $this->sendAfterDueReminders();
 
         $this->info('Reading plans processed successfully.');
 
@@ -27,8 +28,8 @@ class ProcessReadingPlansCommand extends Command
 
     private function expireOverduePlans(): void
     {
-        ReadingPlan::where('status', ReadingPlanStatus::Planned)
-            ->whereDate('due_date', '<', today())
+        ReadingPlan::where('status', ReadingPlanStatus::InProgress)
+            ->whereDate('target_date', '<', today())
             ->update([
                 'status' => ReadingPlanStatus::Expired,
                 'expired_at' => now(),
@@ -38,8 +39,8 @@ class ProcessReadingPlansCommand extends Command
     private function sendBeforeDueReminders(): void
     {
         ReadingPlan::with(['user', 'book'])
-            ->where('status', ReadingPlanStatus::Planned)
-            ->whereDate('due_date', today()->addDay())
+            ->where('status', ReadingPlanStatus::InProgress)
+            ->whereDate('target_date', today()->addDays(3))
             ->whereNull('reminder_before_sent_at')
             ->get()
             ->each(function (ReadingPlan $readingPlan) {
@@ -53,11 +54,29 @@ class ProcessReadingPlansCommand extends Command
             });
     }
 
+    private function sendAfterDueReminders(): void
+    {
+        ReadingPlan::with(['user', 'book'])
+            ->where('status', ReadingPlanStatus::Expired)
+            ->whereDate('target_date', today()->subDays(3))
+            ->whereNull('reminder_after_sent_at')
+            ->get()
+            ->each(function (ReadingPlan $readingPlan) {
+                $readingPlan->user->notify(
+                    new ReadingPlanReminderNotification($readingPlan, 'after_due')
+                );
+
+                $readingPlan->update([
+                    'reminder_after_sent_at' => now(),
+                ]);
+            });
+    }
+
     private function sendDueTodayReminders(): void
     {
         ReadingPlan::with(['user', 'book'])
-            ->where('status', ReadingPlanStatus::Planned)
-            ->whereDate('due_date', today())
+            ->where('status', ReadingPlanStatus::InProgress)
+            ->whereDate('target_date', today())
             ->whereNull('reminder_due_sent_at')
             ->get()
             ->each(function (ReadingPlan $readingPlan) {

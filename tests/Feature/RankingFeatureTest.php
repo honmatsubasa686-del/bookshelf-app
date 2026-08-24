@@ -23,7 +23,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'ランキング表示テスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Review::create([
@@ -51,7 +51,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '高評価の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $lowRatedBook = Book::create([
@@ -61,7 +61,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '2024-01-02',
             'description' => '低評価の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Review::create([
@@ -99,7 +99,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'レビューがある本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $noReviewBook = Book::create([
@@ -109,7 +109,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '2024-01-02',
             'description' => 'レビューがない本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Review::create([
@@ -136,7 +136,7 @@ class RankingFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'レビューがない本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->get(route('ranking.index'));

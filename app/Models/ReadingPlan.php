@@ -14,18 +14,22 @@ class ReadingPlan extends Model
     protected $fillable = [
         'user_id',
         'book_id',
-        'due_date',
+        'target_date',
         'status',
+        'completed_at',
         'reminder_before_sent_at',
         'reminder_due_sent_at',
+        'reminder_after_sent_at',
         'expired_at',
     ];
 
     protected $casts = [
-        'due_date' => 'date',
+        'target_date' => 'date',
         'status' => ReadingPlanStatus::class,
+        'completed_at' => 'datetime',
         'reminder_before_sent_at' => 'datetime',
         'reminder_due_sent_at' => 'datetime',
+        'reminder_after_sent_at' => 'datetime',
         'expired_at' => 'datetime',
     ];
 

@@ -16,7 +16,7 @@ class BookResource extends JsonResource
             'isbn' => $this->isbn,
             'published_date' => $this->published_date,
             'description' => $this->description,
-            'image_path' => $this->image_path,
+            'image_url' => $this->image_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'genres' => $this->whenLoaded('genres', function () {

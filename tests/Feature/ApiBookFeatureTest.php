@@ -25,7 +25,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'API一覧テスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->getJson('/api/v1/books');
@@ -41,7 +41,7 @@ class ApiBookFeatureTest extends TestCase
                     'isbn',
                     'published_date',
                     'description',
-                    'image_path',
+                    'image_url',
                     'created_at',
                     'updated_at',
                 ],
@@ -55,7 +55,7 @@ class ApiBookFeatureTest extends TestCase
         ]);
 
         $response->assertJsonPath('data.0.title', 'API一覧の本');
-        $response->assertJsonPath('meta.per_page', 12);
+        $response->assertJsonPath('meta.per_page', 20);
         $response->assertJsonPath('meta.total', 1);
     }
 
@@ -70,7 +70,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'Laravelの本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Book::create([
@@ -80,10 +80,10 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '2024-01-02',
             'description' => 'PHPの本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
-        $response = $this->getJson('/api/v1/books?title=Laravel');
+        $response = $this->getJson('/api/v1/books?keyword=Laravel');
 
         $response->assertStatus(200);
 
@@ -112,7 +112,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'API詳細テスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $book->genres()->attach($genre->id);
@@ -134,6 +134,11 @@ class ApiBookFeatureTest extends TestCase
         $response->assertJsonPath('data.reviews.0.user_name', 'レビュー太郎');
         $response->assertJsonPath('data.reviews.0.rating', 5);
         $response->assertJsonPath('data.reviews.0.comment', 'API詳細に表示されるレビューです。');
+
+        $response->assertJsonPath(
+            'data.image_url',
+            'https://placehold.co/200x300'
+        );
     }
 
     public function test_api_books_show_returns_404_when_book_does_not_exist(): void
@@ -141,6 +146,10 @@ class ApiBookFeatureTest extends TestCase
         $response = $this->getJson('/api/v1/books/999999');
 
         $response->assertStatus(404);
+
+        $response->assertJsonStructure([
+            'error',
+        ]);
     }
 
     public function test_api_books_store_creates_book(): void
@@ -251,7 +260,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '既存本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->postJson('/api/v1/books', [
@@ -323,7 +332,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '更新前の説明です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $book->genres()->attach($oldGenre->id);
@@ -370,7 +379,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '更新対象です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->putJson("/api/v1/books/{$book->id}", [
@@ -411,7 +420,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '更新対象です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         Book::create([
@@ -421,7 +430,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '2024-01-02',
             'description' => '別の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->putJson("/api/v1/books/{$book->id}", [
@@ -487,7 +496,7 @@ class ApiBookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '削除対象です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->deleteJson("/api/v1/books/{$book->id}");
@@ -508,6 +517,10 @@ class ApiBookFeatureTest extends TestCase
         $response = $this->deleteJson('/api/v1/books/999999');
 
         $response->assertStatus(404);
+
+        $response->assertJsonStructure([
+            'error',
+        ]);
     }
 
     public function test_api_books_store_requires_authentication(): void
@@ -515,5 +528,88 @@ class ApiBookFeatureTest extends TestCase
         $response = $this->postJson('/api/v1/books', []);
 
         $response->assertStatus(401);
+    }
+
+    public function test_api_books_update_returns_403_when_user_is_not_owner(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        Sanctum::actingAs($otherUser);
+
+        $book = Book::create([
+            'user_id' => $owner->id,
+            'title' => '他人の本',
+            'author' => 'テスト著者',
+            'isbn' => '9784101010014',
+            'published_date' => '2024-01-01',
+            'description' => '403テスト用の本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $genre = Genre::create([
+            'name' => '403テスト用ジャンル',
+        ]);
+
+        $response = $this->putJson("/api/v1/books/{$book->id}", [
+            'title' => '勝手に更新しようとした本',
+            'author' => 'テスト著者',
+            'isbn' => '9784101010021',
+            'published_date' => '2024-02-01',
+            'description' => '403確認用です。',
+            'genres' => [
+                $genre->id,
+            ],
+        ]);
+
+        $response->assertStatus(403);
+
+        $response->assertJsonStructure([
+            'error',
+        ]);
+    }
+
+    public function test_api_books_index_can_filter_by_genre_id(): void
+    {
+        $techGenre = Genre::create([
+            'name' => '技術書',
+        ]);
+
+        $novelGenre = Genre::create([
+            'name' => '小説',
+        ]);
+
+        $techBook = Book::create([
+            'user_id' => User::factory()->create()->id,
+            'title' => 'Laravel入門',
+            'author' => '技術書著者',
+            'isbn' => '9784101010106',
+            'published_date' => '2024-01-01',
+            'description' => '技術書です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $novelBook = Book::create([
+            'user_id' => User::factory()->create()->id,
+            'title' => '夏の小説',
+            'author' => '小説著者',
+            'isbn' => '9784101010113',
+            'published_date' => '2024-01-02',
+            'description' => '小説です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $techBook->genres()->attach($techGenre->id);
+        $novelBook->genres()->attach($novelGenre->id);
+
+        $response = $this->getJson("/api/v1/books?genre_id={$techGenre->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath('data.0.title', 'Laravel入門');
+
+        $response->assertJsonMissing([
+            'title' => '夏の小説',
+        ]);
     }
 }

@@ -23,7 +23,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'お気に入り一覧に表示される本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $user->favoriteBooks()->attach($book->id);
@@ -53,7 +53,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '自分のお気に入りです。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $otherFavoriteBook = Book::create([
@@ -63,7 +63,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '2024-01-02',
             'description' => '他人のお気に入りです。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $user->favoriteBooks()->attach($myFavoriteBook->id);
@@ -87,7 +87,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'お気に入り追加テストです。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this
@@ -114,7 +114,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'お気に入り解除テストです。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $user->favoriteBooks()->attach($book->id);
@@ -143,7 +143,7 @@ class FavoriteFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'ゲストお気に入り操作テストです。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->post(route('favorites.toggle', $book));

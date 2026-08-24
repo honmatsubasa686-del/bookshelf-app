@@ -17,7 +17,7 @@ class Book extends Model
         'isbn',
         'published_date',
         'description',
-        'image_path',
+        'image_url',
     ];
 
     protected $casts = [
@@ -46,6 +46,6 @@ class Book extends Model
 
     public function favoritedByUsers()
     {
-        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+        return $this->belongsToMany(User::class, 'favorites');
     }
 }

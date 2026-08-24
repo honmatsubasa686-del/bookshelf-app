@@ -35,7 +35,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placechold.co/200x300',
+            'image_url' => 'https://placechold.co/200x300',
         ]);
 
         $book->genres()->attach($genre->id);
@@ -85,7 +85,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784873115658',
             'published_date' => '2012-06-23',
             'description' => '読みやすいコードを書くための考え方を学べる本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
             'genres' => [
                 $genre->id,
             ],
@@ -98,7 +98,7 @@ class BookFeatureTest extends TestCase
             'author' => 'Dustin Boswell',
             'isbn' => '9784873115658',
             'user_id' => $user->id,
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $book = Book::where('isbn', '9784873115658')->first();
@@ -141,7 +141,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '12345', // 12 digits
             'published_date' => '2024-01-01',
             'description' => 'テスト説明です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
             'genres' => [
                 $genre->id,
             ],
@@ -169,7 +169,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784873115658',
             'published_date' => '2012-06-23',
             'description' => '既存の説明です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($user)->post(route('books.store'), [
@@ -178,7 +178,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784873115658',
             'published_date' => '2024-01-01',
             'description' => '新しい説明です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
             'genres' => [
                 $genre->id,
             ],
@@ -206,7 +206,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010021',
             'published_date' => '1906-04-01',
             'description' => 'まっすぐな主人公を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $book->genres()->attach($genre->id);
@@ -230,7 +230,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '他人が登録した本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($otherUser)->get(route('books.edit', $book));
@@ -257,7 +257,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '変更前の説明です。',
-            'image_path' => 'https://placehold.co/200x300?text=old',
+            'image_url' => 'https://placehold.co/200x300?text=old',
         ]);
 
         $book->genres()->attach($oldGenre->id);
@@ -268,7 +268,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-02-01',
             'description' => '変更後の説明です。',
-            'image_path' => 'https://placehold.co/200x300?text=new',
+            'image_url' => 'https://placehold.co/200x300?text=new',
             'genres' => [
                 $newGenre->id,
             ],
@@ -283,7 +283,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-02-01',
             'description' => '変更後の説明です。',
-            'image_path' => 'https://placehold.co/200x300?text=new',
+            'image_url' => 'https://placehold.co/200x300?text=new',
         ]);
 
         $this->assertDatabaseHas('book_genre', [
@@ -313,7 +313,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '他人が登録した本です。',
-            'image_path' => 'https://placehold.co/200x300?text=old',
+            'image_url' => 'https://placehold.co/200x300?text=old',
         ]);
 
         $book->genres()->attach($genre->id);
@@ -324,7 +324,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-02-01',
             'description' => '勝手に変更した説明です。',
-            'image_path' => 'https://placehold.co/200x300?text=new',
+            'image_url' => 'https://placehold.co/200x300?text=new',
             'genres' => [
             $genre->id,
             ],
@@ -337,7 +337,7 @@ class BookFeatureTest extends TestCase
             'title' => '他人の本',
             'author' => '他人の著書',
             'description' => '他人が登録した本です。',
-            'image_path' => 'https://placehold.co/200x300?text=old',
+            'image_url' => 'https://placehold.co/200x300?text=old',
         ]);
     }
 
@@ -352,7 +352,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '削除対象の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($user)->delete(route('books.destroy', $book));
@@ -376,7 +376,7 @@ class BookFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '他人が登録した本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $response = $this->actingAs($otherUser)->delete(route('books.destroy', $book));

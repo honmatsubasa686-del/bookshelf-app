@@ -25,7 +25,7 @@ class ReviewLikeFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'レビューいいねテスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -61,7 +61,7 @@ class ReviewLikeFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'レビューいいね解除テスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -97,7 +97,7 @@ class ReviewLikeFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => 'ゲストいいね操作テスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([
@@ -130,7 +130,7 @@ class ReviewLikeFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '2024-01-01',
             'description' => '複数ユーザーいいねテスト用の本です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $review = Review::create([

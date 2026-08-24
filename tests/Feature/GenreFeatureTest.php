@@ -92,12 +92,12 @@ class GenreFeatureTest extends TestCase
         $this->assertDatabaseCount('genres', 0);
     }
 
-    public function test_genre_store_requires_name_within_50_characters(): void
+    public function test_genre_store_requires_name_within_255_characters(): void
     {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(route('genres.store'), [
-            'name' => str_repeat('あ', 51),
+            'name' => str_repeat('あ', 256),
         ]);
 
         $this->assertDatabaseCount('genres', 0);
@@ -347,7 +347,7 @@ class GenreFeatureTest extends TestCase
             'isbn' => '9784101010014',
             'published_date' => '1905-01-01',
             'description' => '猫の視点から人間社会を描いた作品です。',
-            'image_path' => 'https://placehold.co/200x300',
+            'image_url' => 'https://placehold.co/200x300',
         ]);
 
         $book->genres()->attach($genre->id);

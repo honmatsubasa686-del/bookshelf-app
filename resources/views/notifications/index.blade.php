@@ -90,7 +90,7 @@
                                         </div>
                                         <p class="mt-1 text-sm text-gray-600">{{ $notification->data['message'] ?? '' }}</p>
                                         <p class="mt-1 text-xs text-gray-500">
-                                            期限日：{{ $notification->data['due_date'] ?? '-' }}
+                                            期限日：{{ $notification->data['target_date'] ?? '-' }}
                                         </p>
                                         <p class="mt-2 text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</p>
                                     </div>

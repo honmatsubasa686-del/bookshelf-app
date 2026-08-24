@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\IndexBookRequest;
 use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Requests\Api\StoreBookRequest;
 use App\Http\Resources\BookResource;
@@ -11,24 +12,32 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    public function index(Request $request)
+    public function index(IndexBookRequest $request)
     {
-        $books = Book::query()
-            ->when($request->filled('title'), function ($query) use ($request) {
-                $query->where('title', 'like', '%' . $request->title . '%');
-            })
-            ->latest()
-            ->paginate(12);
+        $query = Book::query()
+            ->with(['genres', 'reviews.user']);
 
-        return response()->json([
-            'data' => BookResource::collection($books->items()),
-            'meta' => [
-                'current_page' => $books->currentPage(),
-                'per_page' => $books->perPage(),
-                'total' => $books->total(),
-                'last_page' => $books->lastPage(),
-            ],
-        ]);
+        if ($request->filled('keyword')) {
+            $keyword = $request->input('keyword');
+
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('author', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('genre_id')) {
+            $genreId = $request->input('genre_id');
+            $query->whereHas('genres', function ($q) use ($genreId) {
+                $q->where('genres.id', $genreId);
+            });
+        }
+
+        $perPage = (int) $request->input('per_page', 20);
+
+        $books = $query->latest()->paginate($perPage);
+
+        return BookResource::collection($books);
     }
 
     /**
@@ -71,9 +80,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
-        if ($book->user_id !== $request->user()->id) {
-            abort(403);
-        }
+        $this->authorize('update', $book);
 
         $validated = $request->validated();
 
@@ -92,12 +99,10 @@ class BookController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Book $book)
+    public function destroy(Book $book)
     {
-        if ($book->user_id !== $request->user()->id) {
-            abort(403);
-        }
-        
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return response()->noContent();

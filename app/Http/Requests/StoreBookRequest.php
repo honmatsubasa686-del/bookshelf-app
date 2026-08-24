@@ -23,11 +23,11 @@ class StoreBookRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'author' => 'required|string|max:120',
-            'isbn' => 'nullable|digits:13|unique:books,isbn',
+            'author' => 'required|string|max:255',
+            'isbn' => 'nullable|string|size:13|unique:books,isbn',
             'published_date' => 'nullable|date',
             'description' => 'nullable|string',
-            'image_path' => 'nullable|url|max:255',
+            'image_url' => 'nullable|url|max:255',
             'genres' => 'required|array|min:1',
             'genres.*' => 'exists:genres,id',
         ];

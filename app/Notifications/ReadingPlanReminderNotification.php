@@ -26,7 +26,7 @@ class ReadingPlanReminderNotification extends Notification
         return [
             'reading_plan_id' => $this->readingPlan->id,
             'book_title' => $this->readingPlan->book->title,
-            'due_date' => $this->readingPlan->due_date->format('Y-m-d'),
+            'target_date' => $this->readingPlan->target_date->format('Y-m-d'),
             'type' => $this->type,
             'message' => $this->message(),
         ];
@@ -35,8 +35,9 @@ class ReadingPlanReminderNotification extends Notification
     private function message(): string
     {
         return match ($this->type) {
-            'before_due' => '読書期限日の前日です。',
+            'before_due' => '読書期限日の3日前です。',
             'due_today' => '読書期限日当日です。',
+            'after_due' => '読書期限日から3日経過しています。',
             default => '読書計画のお知らせです。',
         };
     }

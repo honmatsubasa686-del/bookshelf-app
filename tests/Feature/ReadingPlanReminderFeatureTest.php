@@ -19,18 +19,18 @@ class ReadingPlanReminderFeatureTest extends TestCase
 
         $book = Book::create([
             'user_id' => $user->id,
-            'title' => '期限前日通知テスト本',
+            'title' => '期限3日前通知テスト本',
             'author' => 'テスト太郎',
             'isbn' => '9784101010045',
             'published_date' => '2024-01-01',
-            'description' => '期限前日通知テスト用の本です。',
+            'description' => '期限3日前通知テスト用の本です。',
         ]);
 
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => today()->addDay()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => today()->addDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $this->artisan('reading-plans:process')
@@ -43,7 +43,7 @@ class ReadingPlanReminderFeatureTest extends TestCase
 
         $this->assertDatabaseHas('reading_plans', [
             'id' => $readingPlan->id,
-            'status' => ReadingPlanStatus::Planned->value,
+            'status' => ReadingPlanStatus::InProgress->value,
         ]);
 
         $readingPlan->refresh();
@@ -55,9 +55,9 @@ class ReadingPlanReminderFeatureTest extends TestCase
 
         $this->assertSame('before_due', $notification->data['type']);
         $this->assertSame($readingPlan->id, $notification->data['reading_plan_id']);
-        $this->assertSame('期限前日通知テスト本', $notification->data['book_title']);
-        $this->assertSame(today()->addDay()->toDateString(), $notification->data['due_date']);
-        $this->assertSame('読書期限日の前日です。', $notification->data['message']);
+        $this->assertSame('期限3日前通知テスト本', $notification->data['book_title']);
+        $this->assertSame(today()->addDays(3)->toDateString(), $notification->data['target_date']);
+        $this->assertSame('読書期限日の3日前です。', $notification->data['message']);
     }
 
     public function test_command_creates_due_today_reminder_notification(): void
@@ -76,8 +76,8 @@ class ReadingPlanReminderFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => today()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => today()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $this->artisan('reading-plans:process')
@@ -90,7 +90,7 @@ class ReadingPlanReminderFeatureTest extends TestCase
 
         $this->assertDatabaseHas('reading_plans', [
             'id' => $readingPlan->id,
-            'status' => ReadingPlanStatus::Planned->value,
+            'status' => ReadingPlanStatus::InProgress->value,
         ]);
 
         $readingPlan->refresh();
@@ -103,8 +103,55 @@ class ReadingPlanReminderFeatureTest extends TestCase
         $this->assertSame('due_today', $notification->data['type']);
         $this->assertSame($readingPlan->id, $notification->data['reading_plan_id']);
         $this->assertSame('期限当日通知テスト本', $notification->data['book_title']);
-        $this->assertSame(today()->toDateString(), $notification->data['due_date']);
+        $this->assertSame(today()->toDateString(), $notification->data['target_date']);
         $this->assertSame('読書期限日当日です。', $notification->data['message']);
+    }
+
+    public function test_command_creates_after_due_reminder_notification(): void
+    {
+        $user = User::factory()->create();
+
+        $book = Book::create([
+            'user_id' => $user->id,
+            'title' => '期限3日後通知テスト本',
+            'author' => 'テスト太郎',
+            'isbn' => '9784101010045',
+            'published_date' => '2024-01-01',
+            'description' => '期限3日後通知テスト用の本です。',
+        ]);
+
+        $readingPlan = ReadingPlan::create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => today()->subDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::Expired,
+        ]);
+
+        $this->artisan('reading-plans:process')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $user->id,
+        ]);
+
+        $this->assertDatabaseHas('reading_plans', [
+            'id' => $readingPlan->id,
+            'status' => ReadingPlanStatus::Expired->value,
+        ]);
+
+        $readingPlan->refresh();
+
+        $this->assertNotNull($readingPlan->reminder_after_sent_at);
+        $this->assertNull($readingPlan->reminder_due_sent_at);
+
+        $notification = $user->notifications()->first();
+
+        $this->assertSame('after_due', $notification->data['type']);
+        $this->assertSame($readingPlan->id, $notification->data['reading_plan_id']);
+        $this->assertSame('期限3日後通知テスト本', $notification->data['book_title']);
+        $this->assertSame(today()->subDays(3)->toDateString(), $notification->data['target_date']);
+        $this->assertSame('読書期限日から3日経過しています。', $notification->data['message']);
     }
 
     public function test_command_does_not_create_duplicate_before_due_reminder_notification(): void
@@ -113,18 +160,18 @@ class ReadingPlanReminderFeatureTest extends TestCase
 
         $book = Book::create([
             'user_id' => $user->id,
-            'title' => '前日通知重複防止テスト本',
+            'title' => '3日前通知重複防止テスト本',
             'author' => 'テスト太郎',
             'isbn' => '9784101010069',
             'published_date' => '2024-01-01',
-            'description' => '前日通知重複防止テスト用の本です。',
+            'description' => '3日前通知重複防止テスト用の本です。',
         ]);
 
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => today()->addDay()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => today()->addDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
             'reminder_before_sent_at' => now(),
         ]);
 
@@ -147,7 +194,7 @@ class ReadingPlanReminderFeatureTest extends TestCase
             'user_id' => $user->id,
             'title' => '当日通知重複防止テスト本',
             'author' => 'テスト太郎',
-            'isbn' => '9784101010076',
+            'isbn' => '9784101010090',
             'published_date' => '2024-01-01',
             'description' => '当日通知重複防止テスト用の本です。',
         ]);
@@ -155,9 +202,32 @@ class ReadingPlanReminderFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => today()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => today()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
             'reminder_due_sent_at' => now(),
+        ]);
+        $this->assertNotNull($readingPlan->reminder_due_sent_at);
+    }
+
+    public function test_command_does_not_create_duplicate_after_due_reminder_notification(): void
+    {
+        $user = User::factory()->create();
+
+        $book = Book::create([
+            'user_id' => $user->id,
+            'title' => '3日後通知重複防止テスト本',
+            'author' => 'テスト太郎',
+            'isbn' => '9784101010076',
+            'published_date' => '2024-01-01',
+            'description' => '3日後通知重複防止テスト用の本です。',
+        ]);
+
+        $readingPlan = ReadingPlan::create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => today()->subDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::Expired,
+            'reminder_after_sent_at' => now(),
         ]);
 
         $this->artisan('reading-plans:process')
@@ -168,7 +238,7 @@ class ReadingPlanReminderFeatureTest extends TestCase
         $readingPlan->refresh();
 
         $this->assertNull($readingPlan->reminder_before_sent_at);
-        $this->assertNotNull($readingPlan->reminder_due_sent_at);
+        $this->assertNotNull($readingPlan->reminder_after_sent_at);
     }
 
     public function test_command_expires_overdue_reading_plan(): void
@@ -187,8 +257,8 @@ class ReadingPlanReminderFeatureTest extends TestCase
         $readingPlan = ReadingPlan::create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'due_date' => today()->subDay()->toDateString(),
-            'status' => ReadingPlanStatus::Planned,
+            'target_date' => today()->subDay()->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         $this->artisan('reading-plans:process')
