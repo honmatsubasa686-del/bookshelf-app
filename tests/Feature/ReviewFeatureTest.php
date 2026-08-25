@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
-use \App\Models\Review;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -209,7 +209,7 @@ class ReviewFeatureTest extends TestCase
 
     public function test_review_owner_can_update_review(): void
     {
-        $bookOwner = user::factory()->create();
+        $bookOwner = User::factory()->create();
         $reviewOwner = User::factory()->create();
 
         $book = Book::create([

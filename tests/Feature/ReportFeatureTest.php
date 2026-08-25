@@ -138,4 +138,29 @@ class ReportFeatureTest extends TestCase
         $response->assertSee('本人レビュー本');
         $response->assertDontSee('他ユーザーレビュー本');
     }
+
+    public function test_guest_is_redirected_to_login_when_accessing_report(): void
+    {
+        $response = $this->get('/reports');
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_report_handles_zero_reviews_safely(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/reports');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('stats');
+
+        $stats = $response->viewData('stats');
+
+        $this->assertSame(0, $stats['summary']['total_reviews']);
+        $this->assertSame(0, $stats['summary']['books_read']);
+        $this->assertSame(0, $stats['summary']['average_rating']);
+        $this->assertSame([], $stats['top_rated_books']);
+        $this->assertSame([], $stats['genre_ratings']);
+    }
 }

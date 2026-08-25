@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
-use App\Models\Book;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +44,7 @@ class GenreFeatureTest extends TestCase
 
     public function test_guest_is_redirected_to_login_when_accessing_genre_create_page()
     {
-        $response = $this -> get(route('genres.create'));
+        $response = $this->get(route('genres.create'));
 
         $response->assertRedirect(route('login'));
     }
@@ -56,7 +56,7 @@ class GenreFeatureTest extends TestCase
         $response = $this->actingAs($user)->post(route('genres.store'), [
             'name' => 'ミステリー',
         ]);
-        
+
         $response->assertRedirect(route('genres.index'));
 
         $this->assertDatabaseHas('genres', [

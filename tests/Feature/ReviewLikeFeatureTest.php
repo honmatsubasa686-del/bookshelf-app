@@ -104,7 +104,7 @@ class ReviewLikeFeatureTest extends TestCase
             'user_id' => $reviewOwner->id,
             'book_id' => $book->id,
             'rating' => 5,
-            'comment' => 'ゲストにいいねされるレビューです。'
+            'comment' => 'ゲストにいいねされるレビューです。',
         ]);
 
         $response = $this->post(route('reviews.like', $review));

@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthTokenController;
+use App\Http\Controllers\Api\BookController as ApiBookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\BookController as ApiBookController;
 
 /*
 |--------------------------------------------------------------------------

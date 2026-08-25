@@ -16,7 +16,7 @@ class BookSeeder extends Seeder
     {
         $user = User::first();
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 

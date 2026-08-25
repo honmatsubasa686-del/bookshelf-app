@@ -9,7 +9,6 @@ use Illuminate\Console\Command;
 
 class ProcessReadingPlansCommand extends Command
 {
-
     protected $signature = 'reading-plans:process';
 
     protected $description = 'Process expired reading plans and send reminder notifications';

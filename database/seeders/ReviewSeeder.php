@@ -36,7 +36,7 @@ class ReviewSeeder extends Seeder
             '9784822251468',
         ])->get()->keyBy('isbn');
 
-        if ($users->count() <5 || $books->count() < 11) {
+        if ($users->count() < 5 || $books->count() < 11) {
             return;
         }
 
@@ -236,7 +236,7 @@ class ReviewSeeder extends Seeder
         ];
 
         foreach ($reviews as $review) {
-            Review::create ([
+            Review::create([
                 'user_id' => $users[$review['email']]->id,
                 'book_id' => $books[$review['isbn']]->id,
                 'rating' => $review['rating'],

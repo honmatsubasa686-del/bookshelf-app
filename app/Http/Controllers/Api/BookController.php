@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\IndexBookRequest;
-use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Requests\Api\StoreBookRequest;
+use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
-    public function index(IndexBookRequest $request)
+    public function index(IndexBookRequest $request): AnonymousResourceCollection
     {
         $query = Book::query()
             ->with(['genres', 'reviews.user']);
@@ -43,7 +45,7 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBookRequest $request)
+    public function store(StoreBookRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -53,7 +55,7 @@ class BookController extends Controller
         $book = Book::create([
             ...$validated,
             'user_id' => $request->user()->id,
-            ]);
+        ]);
 
         $book->genres()->attach($genres);
 
@@ -67,18 +69,17 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $book): BookResource
     {
         $book->load(['genres', 'reviews.user']);
 
         return new BookResource($book);
     }
 
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookRequest $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book): BookResource
     {
         $this->authorize('update', $book);
 
@@ -99,7 +100,7 @@ class BookController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $book)
+    public function destroy(Book $book): Response
     {
         $this->authorize('delete', $book);
 

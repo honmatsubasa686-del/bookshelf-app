@@ -20,6 +20,24 @@ class AuthFeatureTest extends TestCase
         $response->assertSee('ログイン');
     }
 
+    public function test_authenticated_user_is_redirected_from_login_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('login'));
+
+        $response->assertRedirect('/');
+    }
+
+    public function test_authenticated_user_is_redirected_from_register_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('register'));
+
+        $response->assertRedirect('/');
+    }
+
     public function test_register_page_can_be_displayed(): void
     {
         $response = $this->get(route('register'));
@@ -91,7 +109,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_user_can_login(): void
     {
-        $user = user::factory()->create([
+        $user = User::factory()->create([
             'email' => 'login@example.com',
             'password' => bcrypt('password'),
         ]);

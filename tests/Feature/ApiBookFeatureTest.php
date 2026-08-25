@@ -51,7 +51,7 @@ class ApiBookFeatureTest extends TestCase
                 'per_page',
                 'total',
                 'last_page',
-            ]
+            ],
         ]);
 
         $response->assertJsonPath('data.0.title', 'API一覧の本');
@@ -158,7 +158,7 @@ class ApiBookFeatureTest extends TestCase
         Sanctum::actingAs($user);
 
         $genre = Genre::create([
-            'name' => '技術書'
+            'name' => '技術書',
         ]);
 
         $response = $this->postJson('/api/v1/books', [

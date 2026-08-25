@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -20,12 +21,12 @@ class ReportController extends Controller
                 'average_rating' => $reviews->avg('rating') ?? 0,
             ],
             'rating_distribution' => collect(range(1, 5))
-                ->map(fn($rating) => $reviews->where('rating', $rating)->count()),
+                ->map(fn ($rating) => $reviews->where('rating', $rating)->count()),
             'top_rated_books' => $reviews
                 ->where('rating', '>=', 4)
                 ->sortByDesc('rating')
                 ->take(5)
-                ->map(fn($review) => [
+                ->map(fn ($review) => [
                     'id' => $review->book->id,
                     'title' => $review->book->title,
                     'author' => $review->book->author,
@@ -39,11 +40,11 @@ class ReportController extends Controller
         return view('reports.index', compact('stats'));
     }
 
-    private function buildGenreRatings($reviews): array
+    private function buildGenreRatings(Collection $reviews): array
     {
         return $reviews
             ->flatMap(function ($review) {
-                return $review->book->genres->map(fn($genre) => [
+                return $review->book->genres->map(fn ($genre) => [
                     'id' => $genre->id,
                     'name' => $genre->name,
                     'rating' => $review->rating,

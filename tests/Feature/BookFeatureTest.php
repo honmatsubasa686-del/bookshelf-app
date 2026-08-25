@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Book;
 use App\Models\Genre;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class BookFeatureTest extends TestCase
@@ -40,7 +40,7 @@ class BookFeatureTest extends TestCase
 
         $book->genres()->attach($genre->id);
 
-        $response = $this->get('/books/' . $book->id);
+        $response = $this->get('/books/'.$book->id);
 
         $response->assertStatus(200);
         $response->assertSee('吾輩は猫である');
@@ -148,7 +148,7 @@ class BookFeatureTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors([
-            'isbn'
+            'isbn',
         ]);
 
         $this->assertDatabaseCount('books', 0);
@@ -185,7 +185,7 @@ class BookFeatureTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors([
-            'isbn'
+            'isbn',
         ]);
 
         $this->assertDatabaseCount('books', 1);
@@ -326,7 +326,7 @@ class BookFeatureTest extends TestCase
             'description' => '勝手に変更した説明です。',
             'image_url' => 'https://placehold.co/200x300?text=new',
             'genres' => [
-            $genre->id,
+                $genre->id,
             ],
         ]);
 
@@ -388,5 +388,243 @@ class BookFeatureTest extends TestCase
             'title' => '他人の本',
         ]);
     }
-}
 
+    public function test_books_index_can_filter_by_keyword(): void
+    {
+        $user = User::factory()->create();
+
+        Book::create([
+            'user_id' => $user->id,
+            'title' => 'Laravel入門',
+            'author' => '山田太郎',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => 'Laravelの本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        Book::create([
+            'user_id' => $user->id,
+            'title' => 'PHP基礎',
+            'author' => '佐藤花子',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => 'PHPの本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $response = $this->get(route('books.index', [
+            'keyword' => 'Laravel',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Laravel入門');
+        $response->assertDontSee('PHP基礎');
+    }
+
+    public function test_books_index_can_filter_by_genre(): void
+    {
+        $user = User::factory()->create();
+
+        $techGenre = Genre::create([
+            'name' => '技術書',
+        ]);
+
+        $novelGenre = Genre::create([
+            'name' => '小説',
+        ]);
+
+        $techBook = Book::create([
+            'user_id' => $user->id,
+            'title' => 'Laravel入門',
+            'author' => '山田太郎',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => 'Laravelの本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $novelBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '夏の小説',
+            'author' => '佐藤花子',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => '小説です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $techBook->genres()->attach($techGenre->id);
+        $novelBook->genres()->attach($novelGenre->id);
+
+        $response = $this->get(route('books.index', [
+            'genre' => $techGenre->id,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Laravel入門');
+        $response->assertDontSee('夏の小説');
+    }
+
+    public function test_books_index_can_sort_by_latest(): void
+    {
+        $user = User::factory()->create();
+
+        $oldBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '古い本',
+            'author' => '著者A',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => '古い本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $oldBook->forceFill([
+            'created_at' => now()->subDay(),
+        ])->save();
+
+        $newBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '新しい本',
+            'author' => '著者B',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => '新しい本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $response = $this->get(route('books.index', [
+            'sort' => 'latest',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            $newBook->title,
+            $oldBook->title,
+        ]);
+    }
+
+    public function test_books_index_can_sort_by_oldest(): void
+    {
+        $user = User::factory()->create();
+
+        $oldBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '古い本',
+            'author' => '著者A',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => '古い本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $oldBook->forceFill([
+            'created_at' => now()->subDay(),
+        ])->save();
+
+        $newBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '新しい本',
+            'author' => '著者B',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => '新しい本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $response = $this->get(route('books.index', [
+            'sort' => 'oldest',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            $oldBook->title,
+            $newBook->title,
+        ]);
+    }
+
+    public function test_books_index_can_sort_by_title(): void
+    {
+        $user = User::factory()->create();
+
+        $bookB = Book::create([
+            'user_id' => $user->id,
+            'title' => 'Bの本',
+            'author' => '著者B',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => 'Bの本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $bookA = Book::create([
+            'user_id' => $user->id,
+            'title' => 'Aの本',
+            'author' => '著者A',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => 'Aの本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $response = $this->get(route('books.index', [
+            'sort' => 'title',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            $bookA->title,
+            $bookB->title,
+        ]);
+    }
+
+    public function test_books_index_can_sort_by_rating(): void
+    {
+        $user = User::factory()->create();
+
+        $highRatedBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '高評価の本',
+            'author' => '著者A',
+            'isbn' => '9780000000001',
+            'published_date' => '2024-01-01',
+            'description' => '高評価の本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        $lowRatedBook = Book::create([
+            'user_id' => $user->id,
+            'title' => '低評価の本',
+            'author' => '著者B',
+            'isbn' => '9780000000002',
+            'published_date' => '2024-01-02',
+            'description' => '低評価の本です。',
+            'image_url' => 'https://placehold.co/200x300',
+        ]);
+
+        Review::create([
+            'user_id' => $user->id,
+            'book_id' => $highRatedBook->id,
+            'rating' => 5,
+            'comment' => 'とても良い本でした。',
+        ]);
+
+        Review::create([
+            'user_id' => $user->id,
+            'book_id' => $lowRatedBook->id,
+            'rating' => 2,
+            'comment' => 'いまひとつでした。',
+        ]);
+
+        $response = $this->get(route('books.index', [
+            'sort' => 'rating',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            $highRatedBook->title,
+            $lowRatedBook->title,
+        ]);
+    }
+}

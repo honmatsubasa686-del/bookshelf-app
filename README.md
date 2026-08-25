@@ -219,8 +219,6 @@ http://localhost:8080
 | id         | bigint    | primary key                    |
 | user_id    | foreignId | foreign key, cascade on delete |
 | book_id    | foreignId | foreign key, cascade on delete |
-| created_at | timestamp | nullable                       |
-| updated_at | timestamp | nullable                       |
 
 `user_id` と `book_id` の組み合わせは unique です。
 
@@ -231,8 +229,6 @@ http://localhost:8080
 | id         | bigint    | primary key                    |
 | user_id    | foreignId | foreign key, cascade on delete |
 | review_id  | foreignId | foreign key, cascade on delete |
-| created_at | timestamp | nullable                       |
-| updated_at | timestamp | nullable                       |
 
 `user_id` と `review_id` の組み合わせは unique です。
 
@@ -354,16 +350,12 @@ erDiagram
         bigint id PK
         bigint user_id FK
         bigint book_id FK
-        timestamp created_at
-        timestamp updated_at
     }
 
     review_likes {
         bigint id PK
         bigint user_id FK
         bigint review_id FK
-        timestamp created_at
-        timestamp updated_at
     }
 
     reading_plans {

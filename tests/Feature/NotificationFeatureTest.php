@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class NotificationFeatureTest extends TestCase
@@ -16,7 +17,7 @@ class NotificationFeatureTest extends TestCase
         $this->actingAs($user);
 
         $user->notifications()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => 'database',
             'data' => [
                 'reading_plan_id' => 1,
@@ -42,7 +43,7 @@ class NotificationFeatureTest extends TestCase
         $this->actingAs($user);
 
         $notification = $user->notifications()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => 'database',
             'data' => [
                 'reading_plan_id' => 1,
@@ -70,7 +71,7 @@ class NotificationFeatureTest extends TestCase
         $this->actingAs($otherUser);
 
         $notification = $owner->notifications()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => 'database',
             'data' => [
                 'reading_plan_id' => 1,

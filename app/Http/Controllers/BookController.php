@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use App\Models\Book;
-use App\Models\Genre;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Models\Book;
+use App\Models\Genre;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class BookController extends Controller
 {
     /**
+     * 書籍一覧を表示する。
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $genres = Genre::orderBy('name')->get();
 
@@ -52,14 +56,17 @@ class BookController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         $genres = Genre::all();
 
         return view('books.create', compact('genres'));
     }
 
-    public function searchByIsbn(string $isbn)
+    /**
+     * ISBNを使って書籍情報を検索する。
+     */
+    public function searchByIsbn(string $isbn): JsonResponse
     {
         if (! preg_match('/^\d{13}$/', $isbn)) {
             return response()->json([
@@ -69,7 +76,7 @@ class BookController extends Controller
 
         try {
             $response = Http::timeout(5)->get('https://www.googleapis.com/books/v1/volumes', [
-                'q' => 'isbn:' . $isbn,
+                'q' => 'isbn:'.$isbn,
             ]);
 
             if (! $response->successful()) {
@@ -77,6 +84,7 @@ class BookController extends Controller
                     429 => '外部APIの利用制限に達しました。時間をおいて再度お試しください。',
                     default => '書籍情報の取得に失敗しました。',
                 };
+
                 return response()->json([
                     'error' => $message,
                 ], 502);
@@ -109,9 +117,9 @@ class BookController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 新しい書籍を登録する。
      */
-    public function store(StoreBookRequest $request)
+    public function store(StoreBookRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -135,7 +143,7 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $book): View
     {
         $book->load(['genres', 'user']);
 
@@ -145,7 +153,7 @@ class BookController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Book $book)
+    public function edit(Book $book): View
     {
         if ($book->user_id !== auth()->id()) {
             abort(403);
@@ -157,9 +165,9 @@ class BookController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * 指定した書籍を更新する。
      */
-    public function update(UpdateBookRequest $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book): RedirectResponse
     {
         if ($book->user_id !== auth()->id()) {
             abort(403);
@@ -184,9 +192,9 @@ class BookController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     *  * 指定した書籍を削除する。
      */
-    public function destroy(Book $book)
+    public function destroy(Book $book): RedirectResponse
     {
         if ($book->user_id !== auth()->id()) {
             abort(403);

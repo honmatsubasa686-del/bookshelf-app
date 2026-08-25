@@ -6,10 +6,12 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Book;
 use App\Models\Review;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
-    public function store(StoreReviewRequest $request, Book $book)
+    public function store(StoreReviewRequest $request, Book $book): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -25,7 +27,7 @@ class ReviewController extends Controller
             ->with('success', 'レビューを投稿しました。');
     }
 
-    public function edit(Review $review)
+    public function edit(Review $review): View
     {
         if ($review->user_id !== auth()->id()) {
             abort(403);
@@ -34,7 +36,7 @@ class ReviewController extends Controller
         return view('reviews.edit', compact('review'));
     }
 
-    public function update(UpdateReviewRequest $request, Review $review)
+    public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
     {
         if ($review->user_id !== auth()->id()) {
             abort(403);
@@ -52,7 +54,7 @@ class ReviewController extends Controller
             ->with('success', 'レビューを更新しました。');
     }
 
-    public function destroy(Review $review)
+    public function destroy(Review $review): RedirectResponse
     {
         if ($review->user_id !== auth()->id()) {
             abort(403);

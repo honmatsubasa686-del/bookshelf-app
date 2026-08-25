@@ -41,7 +41,7 @@ class ReadingPlanController extends Controller
             'user_id' => auth()->id(),
             'book_id' => $request->validated('book_id'),
             'target_date' => $request->validated('target_date'),
-            'status' => ReadingPlanStatus::InProgress
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         return redirect()

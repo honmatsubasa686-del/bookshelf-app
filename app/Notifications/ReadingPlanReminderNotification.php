@@ -13,8 +13,7 @@ class ReadingPlanReminderNotification extends Notification
     public function __construct(
         private ReadingPlan $readingPlan,
         private string $type
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

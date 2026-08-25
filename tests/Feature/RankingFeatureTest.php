@@ -30,7 +30,7 @@ class RankingFeatureTest extends TestCase
             'user_id' => $user->id,
             'book_id' => $book->id,
             'rating' => 5,
-            'comment' => '高評価レビューです。'
+            'comment' => '高評価レビューです。',
         ]);
 
         $response = $this->get(route('ranking.index'));
@@ -65,7 +65,7 @@ class RankingFeatureTest extends TestCase
         ]);
 
         Review::create([
-            'user_id' => $user -> id,
+            'user_id' => $user->id,
             'book_id' => $highRatedBook->id,
             'rating' => 5,
             'comment' => '高評価レビューです。',
@@ -75,7 +75,7 @@ class RankingFeatureTest extends TestCase
             'user_id' => $user->id,
             'book_id' => $lowRatedBook->id,
             'rating' => 2,
-            'comment' => '低評価レビューです。'
+            'comment' => '低評価レビューです。',
         ]);
 
         $response = $this->get(route('ranking.index'));
@@ -125,6 +125,7 @@ class RankingFeatureTest extends TestCase
         $response->assertSee('レビューありの本');
         $response->assertDontSee('レビューなしの本');
     }
+
     public function test_ranking_page_displays_empty_message_when_no_reviews_exist(): void
     {
         $user = User::factory()->create();

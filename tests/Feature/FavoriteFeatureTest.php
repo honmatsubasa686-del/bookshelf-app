@@ -11,12 +11,11 @@ class FavoriteFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-
     public function test_authenticated_user_can_view_favorites_index_page(): void
     {
         $user = User::factory()->create();
 
-             $book = Book::create([
+        $book = Book::create([
             'user_id' => $user->id,
             'title' => 'お気に入りの本',
             'author' => 'テスト著者',
@@ -44,7 +43,7 @@ class FavoriteFeatureTest extends TestCase
     public function test_favorites_index_displays_only_authenticated_users_favorite_books(): void
     {
         $user = User::factory()->create();
-        $otherUser = user::factory()->create();
+        $otherUser = User::factory()->create();
 
         $myFavoriteBook = Book::create([
             'user_id' => $user->id,
